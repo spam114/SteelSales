@@ -1,5 +1,6 @@
 package com.symbol.steelsales.Interface;
 
+import android.app.Activity;
 import android.content.Context;
 
 /**
@@ -9,6 +10,7 @@ public interface BaseActivityInterface {
     public int checkTagState(String tag);
 
 
+
     void progressON();
 
     void progressON(String message);
@@ -16,4 +18,6 @@ public interface BaseActivityInterface {
     void progressOFF();
 
     void showErrorDialog(Context context, String message, int type);
+
+    public void HideKeyBoard(Context context);
 }

@@ -1,3 +1,8 @@
 <resources>
-    <string name="app_name">SteelSales</string>
+    <string name="app_name">주문관리(철강)</string>
+
+    <!--3333 본디비, 4445 테스트-->
+    <string name="service_address">http://211.245.239.53:4445/Service/json/</string>
+    <!--<string name="service_address">http://211.245.239.53:3333/Service/json/</string>-->
+    <string name="app_code">7</string>
 </resources>
