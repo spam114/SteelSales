@@ -5,4 +5,5 @@
     <string name="service_address">http://211.245.239.53:4445/Service/json/</string>
     <!--<string name="service_address">http://211.245.239.53:3333/Service/json/</string>-->
     <string name="app_code">7</string>
+    <string name="product_dbname">ERP_EonYang</string>
 </resources>

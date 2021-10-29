@@ -1,27 +1,32 @@
-package com.symbol.steelsales.Activity;
+package com.symbol.steelsales.Dialog;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Filter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.symbol.steelsales.Activity.SaleOrderActivity;
 import com.symbol.steelsales.Adapter.AvailablePartAdapter;
+import com.symbol.steelsales.Application.ApplicationClass;
+import com.symbol.steelsales.Interface.BaseActivityInterface;
 import com.symbol.steelsales.Object.SaleOrder;
 import com.symbol.steelsales.Object.Stock;
 import com.symbol.steelsales.R;
@@ -32,8 +37,8 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-//가용재고가 표기되는 품목선택 액티비티
-public class SearchAvailablePartActivity extends BaseActivity {
+public class SearchAvailablePartDialog extends DialogFragment implements BaseActivityInterface {
+
     ArrayList<Stock> stockArrayList;
     ArrayList<String> partNameDic;//품명 검색을 위한 리스트
     ArrayList<String> partSpecNameDic;//규격명 검색을 위한 리스트
@@ -51,24 +56,44 @@ public class SearchAvailablePartActivity extends BaseActivity {
     String locationName;
     String customerCode;
     String customerName;
+    ArrayList<SaleOrder> exOrderArrayList;//주문서에 추가되어있는 품목들
     RelativeLayout badge_layout;
     String saleOrderNo;
+    Button btnSave;
+    Button btnCancel;
 
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_available_part);
-        listview = findViewById(R.id.listview);
-        txtPartName = findViewById(R.id.txtPartName);
-        txtPartSpecName = findViewById(R.id.txtPartSpecName);
-        txtContent = findViewById(R.id.txtContent);
-        txtBadge = findViewById(R.id.txtBadge);
-        locationNo = getIntent().getStringExtra("locationNo");
+    public SearchAvailablePartDialog(ArrayList<SaleOrder> exOrderArrayList) {
+        this.exOrderArrayList = exOrderArrayList;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getAvailableStock();
+
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        //startProgress();
+        View view = inflater.inflate(R.layout.dialog_search_available_part, container, false);
+        //getDialog().setTitle("Sample");
+        btnSave = view.findViewById(R.id.btnSave);
+        btnCancel = view.findViewById(R.id.btnCancel);
+        listview = view.findViewById(R.id.listview);
+        txtPartName = view.findViewById(R.id.txtPartName);
+        txtPartSpecName = view.findViewById(R.id.txtPartSpecName);
+        txtContent = view.findViewById(R.id.txtContent);
+        txtBadge = view.findViewById(R.id.txtBadge);
+        /* locationNo = getIntent().getStringExtra("locationNo");
         locationName = getIntent().getStringExtra("locationName");
         customerCode = getIntent().getStringExtra("customerCode");
-        customerName = getIntent().getStringExtra("customerName");
-        txtContent.setText("거래처: " + customerName);
-        badge_layout = findViewById(R.id.badge_layout);
-        saleOrderNo="";
+        customerName = getIntent().getStringExtra("customerName");*/
+        //txtContent.setText("거래처: " + customerName);
+        badge_layout = view.findViewById(R.id.badge_layout);
+        saleOrderNo = "";
+        //txtContent.setText("거래처: " + customerName);
 
         txtBadge.setVisibility(View.INVISIBLE);
         txtBadge.addTextChangedListener(new TextWatcher() {
@@ -96,7 +121,7 @@ public class SearchAvailablePartActivity extends BaseActivity {
             public void onClick(View v) {
 
 
-                new MaterialAlertDialogBuilder(SearchAvailablePartActivity.this)
+                new MaterialAlertDialogBuilder(getContext())
                         .setTitle("품명을 선택하세요")
                         .setSingleChoiceItems(partNameSequences, selectedIndex, new DialogInterface.OnClickListener() {
                             @Override
@@ -132,46 +157,122 @@ public class SearchAvailablePartActivity extends BaseActivity {
         badge_layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                addSaleOrderList();
 
-                ArrayList<SaleOrder> saleOrderArrayList=new ArrayList<>();
+            }
+        });
 
-                for(int i=0;i<stockArrayList.toArray().length;i++){
-                    Stock stock=stockArrayList.get(i);
-                    SaleOrder saleOrder= new SaleOrder();
-                    if(stock.checked){
-                        saleOrder.isDBSaved=false;
-                        saleOrder.saleOrderNo="";
-                        saleOrder.index=-1;
-                        saleOrder.partCode=stock.PartCode;
-                        saleOrder.partName=stock.PartName;
-                        saleOrder.partSpec=stock.PartSpec;
-                        saleOrder.partSpecName=stock.PartSpecName;
-                        saleOrder.marketPrice=stock.MarketPrice;
-                        saleOrderArrayList.add(saleOrder);
-                    }
+        btnSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addSaleOrderList();
+            }
+        });
 
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
+
+        //Button doneBtn = (Button) mView.findViewById(R.id.done_convert);
+        return view;
+    }
+
+    public void addSaleOrderList() {
+        ArrayList<SaleOrder> saleOrderArrayList = new ArrayList<>();
+
+        for (int i = 0; i < stockArrayList.toArray().length; i++) {
+
+
+            Stock stock = stockArrayList.get(i);
+            SaleOrder saleOrder = new SaleOrder();
+            if (stock.checked) {
+                saleOrder.isDBSaved = false;
+                saleOrder.saleOrderNo = "";
+                saleOrder.index = -1;
+                saleOrder.partCode = stock.PartCode;
+                saleOrder.partName = stock.PartName;
+                saleOrder.partSpec = stock.PartSpec;
+                saleOrder.partSpecName = stock.PartSpecName;
+                saleOrder.marketPrice = stock.MarketPrice;
+                saleOrderArrayList.add(saleOrder);
+            }
+        }
+        for (int i=0;i<saleOrderArrayList.size();i++){
+            for (int j=0;j<exOrderArrayList.size();j++){
+                if(saleOrderArrayList.get(i).partCode.equals(exOrderArrayList.get(j).partCode) && saleOrderArrayList.get(i).partSpec.equals(exOrderArrayList.get(j).partSpec)){
+                    Toast.makeText(getContext(), "주문서에 존재하는 품목, 규격을 추가할 수 없습니다.", Toast.LENGTH_SHORT).show();
+                    return;
                 }
+            }
 
-                Intent intent = new Intent(SearchAvailablePartActivity.this, SaleOrderActivity.class);
+        }
+
+        ((SaleOrderActivity)getContext()).addSaleOrderListByContents(saleOrderArrayList);
+        dismiss();
+                /*Intent intent = new Intent(SearchAvailablePartActivity.this, SaleOrderActivity.class);
                 intent.putExtra("customerCode",customerCode);
                 intent.putExtra("locationNo",locationNo);
                 intent.putExtra("saleOrderNo",saleOrderNo);
                 intent.putExtra("saleOrderArrayList", saleOrderArrayList);
                 //intent.putExtra()
                 startActivityResult.launch(intent);
-                finish();
-            }
-        });
+                finish();*/
 
-        getAvailableStock();
 
     }
+
 
     public void getAvailableStock() {
         String url = getString(R.string.service_address) + "getAvailableStock";
         ContentValues values = new ContentValues();
         GetAvailableStock gsod = new GetAvailableStock(url, values);
         gsod.execute();
+    }
+
+    private void startProgress() {
+
+        progressON("Loading...");
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                progressOFF();
+            }
+        }, 3500);
+
+    }
+
+    @Override
+    public int checkTagState(String tag) {
+        return 0;
+    }
+
+    @Override
+    public void progressON() {
+        ApplicationClass.getInstance().progressON((Activity) getContext(), null);
+    }
+
+    @Override
+    public void progressON(String message) {
+        ApplicationClass.getInstance().progressON((Activity) getContext(), message);
+    }
+
+    @Override
+    public void progressOFF() {
+        ApplicationClass.getInstance().progressOFF();
+    }
+
+    @Override
+    public void showErrorDialog(Context context, String message, int type) {
+        ApplicationClass.getInstance().showErrorDialog(context, message, type);
+    }
+
+    @Override
+    public void HideKeyBoard(Context context) {
+
     }
 
     public class GetAvailableStock extends AsyncTask<Void, Void, String> {
@@ -214,7 +315,7 @@ public class SearchAvailablePartActivity extends BaseActivity {
                     if (!child.getString("ErrorCheck").equals("null")) {//문제가 있을 시, 에러 메시지 호출 후 종료
                         ErrorCheck = child.getString("ErrorCheck");
                         //Toast.makeText(getBaseContext(), ErrorCheck, Toast.LENGTH_SHORT).show();
-                        showErrorDialog(SearchAvailablePartActivity.this, ErrorCheck, 2);
+                        showErrorDialog(getContext(), ErrorCheck, 2);
                         return;
                     }
                     stock = new Stock();
@@ -239,7 +340,7 @@ public class SearchAvailablePartActivity extends BaseActivity {
                 }
 
                 availablePartAdapter = new AvailablePartAdapter
-                        (SearchAvailablePartActivity.this, R.layout.listview_available_part_row, stockArrayList, txtBadge);
+                        (getContext(), R.layout.listview_available_part_row, stockArrayList, txtBadge);
                 listview.setAdapter(availablePartAdapter);
 
             } catch (Exception e) {
@@ -251,25 +352,12 @@ public class SearchAvailablePartActivity extends BaseActivity {
         }
     }
 
-    private void startProgress() {
-        progressON("Loading...");
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                progressOFF();
-            }
-        }, 3500);
-    }
 
-    ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        saleOrderNo=result.getData().getStringExtra("saleOrderNo");
-                        //Toast.makeText(SearchAvailablePartActivity.this, test, Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
+    /*View.OnClickListener doneAction = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Toast.makeText(getActivity(),"Test",Toast.LENGTH_LONG).show();
+        }
+    };*/
+
 }

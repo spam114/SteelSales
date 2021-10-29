@@ -12,6 +12,8 @@ public class SaleOrder implements Serializable {
     public String partSpec="";
     public String partSpecName="";
     public String orderQty="";
+    public double orderAmount=0;
+    public String discountRate="";
 
     public String orderPrice="";//할인율 적용하여, 결정된 주문 단가
     public String marketPrice="";//PartSpec의 시장 단가
