@@ -1,29 +1,23 @@
 package com.symbol.steelsales.Activity;
 
-import android.app.Activity;
 import android.content.ContentValues;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.util.Log;
+import android.view.ContextMenu;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowInsets;
+import android.widget.AbsListView;
 import android.widget.Filter;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.symbol.steelsales.Adapter.AvailablePartAdapter;
-import com.symbol.steelsales.Object.SaleOrder;
+import com.symbol.steelsales.Adapter.ProductInOutAdapter;
 import com.symbol.steelsales.Object.Stock;
 import com.symbol.steelsales.R;
 import com.symbol.steelsales.RequestHttpURLConnection;
@@ -34,71 +28,46 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 //가용재고가 표기되는 품목선택 액티비티
-public class SearchAvailablePartActivity extends BaseActivity {
-    ArrayList<Stock> stockArrayList;
+public class ProductInOutActivity extends BaseActivity {
+
     ArrayList<String> partNameDic;//품명 검색을 위한 리스트
     ArrayList<String> partSpecNameDic;//규격명 검색을 위한 리스트
     CharSequence[] partNameSequences;
-    //CharSequence[] partSpecNameSequences;
-    TextView txtBadge;
-    AvailablePartAdapter availablePartAdapter;
-    ListView listview;
-    TextView txtPartName;
-    TextView txtPartSpecName;
-    TextView txtContent;
     Filter filter;//검색 필터
+    ArrayList<Stock> stockArrayList;
+    //CharSequence[] partSpecNameSequences;
+    ProductInOutAdapter productInOutAdapter;
+    ListView listview;
+    TextView txtContent;
     int selectedIndex = 0;
-    String locationNo;
-    String locationName;
-    String customerCode;
-    String customerName;
-    RelativeLayout badge_layout;
-    String saleOrderNo;
+    TextView txtPartName;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_search_available_part);
-        stockArrayList=new ArrayList<>();
+        setContentView(R.layout.activity_product_in_out);
+        txtPartName=findViewById(R.id.txtPartName);
         listview = findViewById(R.id.listview);
-        txtPartName = findViewById(R.id.txtPartName);
-        txtPartSpecName = findViewById(R.id.txtPartSpecName);
         txtContent = findViewById(R.id.txtContent);
-        txtBadge = findViewById(R.id.txtBadge);
-        locationNo = getIntent().getStringExtra("locationNo");
-        locationName = getIntent().getStringExtra("locationName");
-        customerCode = getIntent().getStringExtra("customerCode");
-        customerName = getIntent().getStringExtra("customerName");
-        txtContent.setText("거래처: " + customerName);
-        badge_layout = findViewById(R.id.badge_layout);
-        saleOrderNo="";
+        txtContent.setText("미납/재고");
 
-        txtBadge.setVisibility(View.INVISIBLE);
-        txtBadge.addTextChangedListener(new TextWatcher() {
+
+        /*listview.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+            public void onLayoutChange(View view, int i, int i1, int i2, int i3, int i4, int i5, int i6, int i7) {
+               // txtContent.setText("수불현황");
+                if(i7!=0)
+                    progressOFF();
             }
+        });*/
 
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().equals("0"))
-                    txtBadge.setVisibility(View.VISIBLE);
-                else
-                    txtBadge.setVisibility(View.INVISIBLE);
-            }
 
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
 
         txtPartName.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
 
-                new MaterialAlertDialogBuilder(SearchAvailablePartActivity.this)
+                new MaterialAlertDialogBuilder(ProductInOutActivity.this)
                         .setTitle("품명을 선택하세요")
                         .setSingleChoiceItems(partNameSequences, selectedIndex, new DialogInterface.OnClickListener() {
                             @Override
@@ -111,7 +80,7 @@ public class SearchAvailablePartActivity extends BaseActivity {
                             public void onDismiss(DialogInterface dialog) {
 
                                 //listview.setFilterText("SPP BPE");
-                                filter = availablePartAdapter.getFilter();//글자가 나타나는 현상때문에 해당 소스로 변경
+                                filter = productInOutAdapter.getFilter();//글자가 나타나는 현상때문에 해당 소스로 변경
                                 filter.filter(partNameSequences[selectedIndex]);
                                 dialog.dismiss();
                             }
@@ -121,7 +90,7 @@ public class SearchAvailablePartActivity extends BaseActivity {
                             public void onClick(DialogInterface dialog, int which) {
 
                                 //listview.setFilterText("SPP BPE");
-                                filter = availablePartAdapter.getFilter();//글자가 나타나는 현상때문에 해당 소스로 변경
+                                filter = productInOutAdapter.getFilter();//글자가 나타나는 현상때문에 해당 소스로 변경
                                 filter.filter(partNameSequences[selectedIndex]);
 
                                 dialog.dismiss();
@@ -131,62 +100,23 @@ public class SearchAvailablePartActivity extends BaseActivity {
             }
         });
 
-        badge_layout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ArrayList<SaleOrder> saleOrderArrayList=new ArrayList<>();
+        getProductInOutData();
 
-                for(int i=0;i<stockArrayList.size();i++){
-                    Stock stock=stockArrayList.get(i);
-                    SaleOrder saleOrder= new SaleOrder();
-                    if(stock.checked){
-                        saleOrder.isDBSaved=false;
-                        saleOrder.saleOrderNo="";
-                        saleOrder.index=-1;
-                        saleOrder.partCode=stock.PartCode;
-                        saleOrder.partName=stock.PartName;
-                        saleOrder.partSpec=stock.PartSpec;
-                        saleOrder.partSpecName=stock.PartSpecName;
-                        saleOrder.marketPrice=stock.MarketPrice;
-                        saleOrder.isChanged=true;
-                        saleOrder.logicalWeight = Double.parseDouble(stock.Weight);
-                        saleOrder.stockQty = Double.parseDouble(stock.Qty);
-                        saleOrderArrayList.add(saleOrder);
-                    }
-                }
-
-                if(saleOrderArrayList.size()==0){
-                    Toast.makeText(SearchAvailablePartActivity.this, "품목을 하나 이상 선택하시기 바랍니다.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                Intent intent = new Intent(SearchAvailablePartActivity.this, SaleOrderActivity.class);
-                intent.putExtra("customerCode",customerCode);
-                intent.putExtra("locationNo",locationNo);
-                intent.putExtra("saleOrderNo",saleOrderNo);
-                intent.putExtra("saleOrderArrayList", saleOrderArrayList);
-                //intent.putExtra()
-                startActivityResult.launch(intent);
-                finish();
-            }
-        });
-
-        getAvailableStock();
 
     }
 
-    public void getAvailableStock() {
-        String url = getString(R.string.service_address) + "getAvailableStock";
+    public void getProductInOutData() {
+        String url = getString(R.string.service_address) + "GetProductInOutData";
         ContentValues values = new ContentValues();
-        GetAvailableStock gsod = new GetAvailableStock(url, values);
+        GetProductInOutData gsod = new GetProductInOutData(url, values);
         gsod.execute();
     }
 
-    public class GetAvailableStock extends AsyncTask<Void, Void, String> {
+    public class GetProductInOutData extends AsyncTask<Void, Void, String> {
         String url;
         ContentValues values;
 
-        GetAvailableStock(String url, ContentValues values) {
+        GetProductInOutData(String url, ContentValues values) {
             this.url = url;
             this.values = values;
         }
@@ -195,6 +125,7 @@ public class SearchAvailablePartActivity extends BaseActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             startProgress();
+            Log.i("순서확인", "미납/재고시작");
             //progress bar를 보여주는 등등의 행위
         }
 
@@ -211,18 +142,21 @@ public class SearchAvailablePartActivity extends BaseActivity {
             // 통신이 완료되면 호출됩니다.
             // 결과에 따른 UI 수정 등은 여기서 합니다
             try {
+
+                stockArrayList = new ArrayList<>();
+                partNameDic = new ArrayList<>();
+                partSpecNameDic = new ArrayList<>();
+
                 Stock stock;
                 JSONArray jsonArray = new JSONArray(result);
                 String ErrorCheck = "";
                 stockArrayList = new ArrayList<>();
-                partNameDic = new ArrayList<>();
-                partSpecNameDic = new ArrayList<>();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject child = jsonArray.getJSONObject(i);
                     if (!child.getString("ErrorCheck").equals("null")) {//문제가 있을 시, 에러 메시지 호출 후 종료
                         ErrorCheck = child.getString("ErrorCheck");
                         //Toast.makeText(getBaseContext(), ErrorCheck, Toast.LENGTH_SHORT).show();
-                        showErrorDialog(SearchAvailablePartActivity.this, ErrorCheck, 2);
+                        showErrorDialog(ProductInOutActivity.this, ErrorCheck, 2);
                         return;
                     }
                     stock = new Stock();
@@ -230,9 +164,13 @@ public class SearchAvailablePartActivity extends BaseActivity {
                     stock.PartName = child.getString("PartName");
                     stock.PartSpec = child.getString("PartSpec");
                     stock.PartSpecName = child.getString("PartSpecName");
-                    stock.Qty = child.getString("Qty");
-                    stock.MarketPrice = child.getString("MarketPrice");
-                    stock.Weight = child.getString("Weight");
+                    stock.Qty = child.getString("Qty");//가용재고
+                    stock.OutQty = child.getString("OutQty");
+                    stock.OutQtySeoul = child.getString("OutQtySeoul");
+                    stock.OutQtyPusan = child.getString("OutQtyPusan");
+                    stock.Minap = child.getString("Minap");
+                    stock.MinapSeoul = child.getString("MinapSeoul");
+                    stock.MinapPusan = child.getString("MinapPusan");
                     stockArrayList.add(stock);
 
                     if (!partNameDic.contains(stock.PartName))
@@ -247,14 +185,16 @@ public class SearchAvailablePartActivity extends BaseActivity {
                     partNameSequences[i] = partNameDic.get(i - 1);
                 }
 
-                availablePartAdapter = new AvailablePartAdapter
-                        (SearchAvailablePartActivity.this, R.layout.listview_available_part_row, stockArrayList, txtBadge);
-                listview.setAdapter(availablePartAdapter);
+
+                productInOutAdapter = new ProductInOutAdapter
+                        (ProductInOutActivity.this, R.layout.listview_product_in_out_row, stockArrayList);
+                listview.setAdapter(productInOutAdapter);
 
             } catch (Exception e) {
                 e.printStackTrace();
 
             } finally {
+                Log.i("순서확인", "미납/재고종료");
                 progressOFF();
             }
         }
@@ -267,10 +207,10 @@ public class SearchAvailablePartActivity extends BaseActivity {
             public void run() {
                 progressOFF();
             }
-        }, 3500);
+        }, 5000);
     }
 
-    ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(
+ /*   ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             new ActivityResultCallback<ActivityResult>() {
                 @Override
@@ -280,5 +220,5 @@ public class SearchAvailablePartActivity extends BaseActivity {
                         //Toast.makeText(SearchAvailablePartActivity.this, test, Toast.LENGTH_SHORT).show();
                     }
                 }
-            });
+            });*/
 }

@@ -19,6 +19,14 @@ public class SaleOrder implements Serializable {
     public String marketPrice="";//PartSpec의 시장 단가
     public String standardPrice="";//SaelsOrderDetail의 저장 당시의 시장 단가: DataSet에서 최초 불러올때만 이걸로 셋팅
 
+    public String remark1="";
+    public String remark2="";
+    public boolean isEnabled=true;//버튼 활성화여부
+    public boolean isChanged=false;//데이터 변경여부
+    public double logicalWeight=0;//이론중량
+    public double Weight=0;//중량
+    public double stockQty;//가용재고
+
     public SaleOrder() {
         super();
     }

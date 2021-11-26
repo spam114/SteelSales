@@ -79,6 +79,7 @@ public class SearchAvailablePartDialog extends DialogFragment implements BaseAct
         //startProgress();
         View view = inflater.inflate(R.layout.dialog_search_available_part, container, false);
         //getDialog().setTitle("Sample");
+        stockArrayList=new ArrayList<>();
         btnSave = view.findViewById(R.id.btnSave);
         btnCancel = view.findViewById(R.id.btnCancel);
         listview = view.findViewById(R.id.listview);
@@ -183,7 +184,7 @@ public class SearchAvailablePartDialog extends DialogFragment implements BaseAct
     public void addSaleOrderList() {
         ArrayList<SaleOrder> saleOrderArrayList = new ArrayList<>();
 
-        for (int i = 0; i < stockArrayList.toArray().length; i++) {
+        for (int i = 0; i < stockArrayList.size(); i++) {
 
 
             Stock stock = stockArrayList.get(i);
@@ -197,6 +198,8 @@ public class SearchAvailablePartDialog extends DialogFragment implements BaseAct
                 saleOrder.partSpec = stock.PartSpec;
                 saleOrder.partSpecName = stock.PartSpecName;
                 saleOrder.marketPrice = stock.MarketPrice;
+                saleOrder.logicalWeight = Double.parseDouble(stock.Weight);
+                saleOrder.stockQty = Double.parseDouble(stock.Qty);
                 saleOrderArrayList.add(saleOrder);
             }
         }
@@ -325,6 +328,7 @@ public class SearchAvailablePartDialog extends DialogFragment implements BaseAct
                     stock.PartSpecName = child.getString("PartSpecName");
                     stock.Qty = child.getString("Qty");
                     stock.MarketPrice = child.getString("MarketPrice");
+                    stock.Weight = child.getString("Weight");
                     stockArrayList.add(stock);
 
                     if (!partNameDic.contains(stock.PartName))

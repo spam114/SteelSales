@@ -69,6 +69,7 @@ public class SearchByKeyinDialog extends DialogFragment implements BaseActivityI
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_search_by_keyin, container, false);
+        stockArrayList=new ArrayList<>();
         //getDialog().setTitle("Sample");
         btnSave = view.findViewById(R.id.btnSave);
         btnCancel = view.findViewById(R.id.btnCancel);
@@ -114,7 +115,7 @@ public class SearchByKeyinDialog extends DialogFragment implements BaseActivityI
     public void addSaleOrderList() {
         ArrayList<SaleOrder> saleOrderArrayList = new ArrayList<>();
 
-        for (int i = 0; i < stockArrayList.toArray().length; i++) {
+        for (int i = 0; i < stockArrayList.size(); i++) {
 
 
             Stock stock = stockArrayList.get(i);
@@ -128,6 +129,8 @@ public class SearchByKeyinDialog extends DialogFragment implements BaseActivityI
                 saleOrder.partSpec = stock.PartSpec;
                 saleOrder.partSpecName = stock.PartSpecName;
                 saleOrder.marketPrice = stock.MarketPrice;
+                saleOrder.logicalWeight = Double.parseDouble(stock.Weight);
+                saleOrder.stockQty = Double.parseDouble(stock.Qty);
                 saleOrderArrayList.add(saleOrder);
             }
         }
@@ -265,6 +268,7 @@ public class SearchByKeyinDialog extends DialogFragment implements BaseActivityI
                     stock.PartSpecName = child.getString("PartSpecName");
                     stock.Qty = child.getString("Qty");
                     stock.MarketPrice = child.getString("MarketPrice");
+                    stock.Weight = child.getString("Weight");
                     stockArrayList.add(stock);
 
                     /*if (!partNameDic.contains(stock.PartName))

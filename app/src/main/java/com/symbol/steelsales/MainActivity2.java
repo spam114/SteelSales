@@ -1,27 +1,47 @@
 package com.symbol.steelsales;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
+import com.symbol.steelsales.Activity.ProductInOutActivity;
+import com.symbol.steelsales.Activity.SearchAvailablePartActivity;
 import com.symbol.steelsales.Application.ApplicationClass;
 import com.symbol.steelsales.Fragment.FragmentSaleOrder;
 import com.symbol.steelsales.Fragment.FragmentViewCollection;
 import com.symbol.steelsales.Fragment.FragmentViewSaleOrder;
 import com.symbol.steelsales.Interface.BaseActivityInterface;
 import com.symbol.steelsales.Object.Users;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 
 public class MainActivity2 extends FragmentActivity implements BaseActivityInterface {
@@ -37,17 +57,40 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
     TabLayout.Tab firstTab;
     TabLayout.Tab secondTab;
     TabLayout.Tab thirdTab;
+    TabLayout.Tab fourthTab;
 
+    LinearLayout layoutRefresh;
+    LinearLayout layoutTotal;
+    FrameLayout container;
     TextView textView7;
+    int currentTab;
+
+    String noticeData;
+    SharedPreferences noticePref;//공지 유무를 저장
+    TextView txtTotalAmount;
+    TextView txtTotalWeight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
+        //startProgress();
         backpressed = new BackPressControl(this);
         fragmentSaleOrder = new FragmentSaleOrder(this);
-        fragmentViewSaleOrder = new FragmentViewSaleOrder(this);
+        txtTotalAmount=findViewById(R.id.txtTotalAmount);
+        txtTotalWeight=findViewById(R.id.txtTotalWeight);
+        fragmentViewSaleOrder = new FragmentViewSaleOrder(this, txtTotalAmount, txtTotalWeight);
         fragmentViewCollection = new FragmentViewCollection(this);
+
+        noticePref=getSharedPreferences("NoticePref",MODE_PRIVATE);
+
+        boolean viewNotice=true;
+        viewNotice=noticePref.getBoolean("viewNotice",true);
+
+        if(viewNotice==true){
+            getNoticeData();
+        }
+
  /*       this.stockOutDetailArrayList = new ArrayList<>();
         this.scanDataArrayList = new ArrayList<>();*/
         //this.productionInfoArrayList = new ArrayList<>();
@@ -57,7 +100,36 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
         tabs = findViewById(R.id.tabs);
         imageView5 = findViewById(R.id.imageView5);
         textView7 = findViewById(R.id.textView7);//테스트용
+        layoutRefresh = findViewById(R.id.layoutRefresh);
+        layoutRefresh.setVisibility(View.INVISIBLE);
+        layoutTotal=findViewById(R.id.layoutTotal);
+        layoutTotal.setVisibility(View.GONE);
+        container=findViewById(R.id.container);
+
+        LinearLayout.LayoutParams params
+                = (LinearLayout.LayoutParams) container.getLayoutParams();
+        params.weight = (float)7.9;
+        container.setLayoutParams(params);
+
+
+
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+
+        layoutRefresh.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+
+                if(currentTab==1){
+                    String fromDate = fragmentViewSaleOrder.tyear + "-" + (fragmentViewSaleOrder.tmonth + 1) + "-" + fragmentViewSaleOrder.tdate;
+                    fragmentViewSaleOrder.getViewSaleOrderData(fromDate);
+                    Toast.makeText(MainActivity2.this, "갱신되었습니다.", Toast.LENGTH_SHORT).show();
+                }
+                else if(currentTab==2){
+                    fragmentViewCollection.getCollectionData();
+                }
+            }
+        });
         /*if(Users.authorityList.contains(0)){//관리자 권한이 있다면,
             textView7.setText(" 재고조사(클릭)");
         }
@@ -89,12 +161,12 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                             "버전: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "\n" +
                             "사용자번호: " + Users.PhoneNumber + "\n" +
                             "사용자명: " + Users.UserName + "\n" +
+                            "부서: " + Users.DeptName + "\n" +
                             "권한: ";
                     for (int i = 0; i < Users.authorityNameList.size(); i++) {
                         content += Users.authorityNameList.get(i).toString() + ", ";
                     }
-                    content = content.substring(0, content.length() - 2) + "\n";
-                    content += "작업조: " + Users.WorkClassName;
+                    content = content.substring(0, content.length() - 2);
 
                     adapter.add(content);
 
@@ -124,13 +196,14 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
             }
         });
 
-        firstTab = tabs.newTab().setText("주문관리").setIcon(R.drawable.outline_local_grocery_store_black_48);
+        firstTab = tabs.newTab().setText("주문").setIcon(R.drawable.outline_local_grocery_store_black_48);
         secondTab = tabs.newTab().setText("주문현황").setIcon(R.drawable.outline_assignment_black_48);
         thirdTab = tabs.newTab().setText("미수금현황").setIcon(R.drawable.outline_payments_black_48);
+        fourthTab = tabs.newTab().setText("미납/재고").setIcon(R.drawable.baseline_sync_alt_black_48);
         tabs.addTab(firstTab);
         tabs.addTab(secondTab);
         tabs.addTab(thirdTab);
-
+        tabs.addTab(fourthTab);
 /*
         tabs2=findViewById(R.id.tabs2);
         final TabLayout.Tab topTab;
@@ -140,15 +213,9 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
         tabs2.addTab(topTab);
         tabs2.addTab(topTab2);*/
 
-        firstTab.view.setClickable(false);
-        secondTab.view.setClickable(false);
-        thirdTab.view.setClickable(false);
-
-        getSupportFragmentManager().beginTransaction().add(R.id.container, fragmentSaleOrder).commit();//첫실행 fragment
-        firstTab.setIcon(R.drawable.baseline_local_grocery_store_black_48);//주문관리
-        secondTab.setIcon(R.drawable.outline_assignment_black_48);//주문현황
-        thirdTab.setIcon(R.drawable.outline_payments_black_48);//미수금현황
-        tabs.selectTab(firstTab);
+        //firstTab.view.setClickable(false);
+        //secondTab.view.setClickable(false);
+        //thirdTab.view.setClickable(false);
 
 
         /*else if (Users.authorityList.contains(2)) {//2:출고권한만 가졌을시
@@ -158,20 +225,36 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
             thirdTab.setIcon(R.drawable.baseline_local_shipping_black_48dp);
             tabs.selectTab(thirdTab);
         }*/
+        firstTab.view.setVisibility(View.GONE);
+        secondTab.view.setVisibility(View.GONE);
+        thirdTab.view.setVisibility(View.GONE);
+        fourthTab.view.setVisibility(View.GONE);
 
-
-        if (Users.authorityList.contains(0)) {
-            firstTab.view.setClickable(true);
-            secondTab.view.setClickable(true);
-            thirdTab.view.setClickable(true);
+        if (Users.authorityList.contains(2)) {//대리점 권한이 있으면, Third, Fourth탭 안보이게
+            layoutRefresh.setVisibility(View.VISIBLE);
+            layoutTotal.setVisibility(View.VISIBLE);
+            params.weight = (float)7.1;
+            container.setLayoutParams(params);
+            firstTab.setIcon(R.drawable.outline_local_grocery_store_black_48);//주문관리
+            secondTab.setIcon(R.drawable.baseline_assignment_black_48);//주문현황
+            tabs.selectTab(secondTab);
+            currentTab=1;
+            firstTab.view.setVisibility(View.VISIBLE);
+            secondTab.view.setVisibility(View.VISIBLE);
+            getSupportFragmentManager().beginTransaction().add(R.id.container, fragmentViewSaleOrder).commit();//첫실행 fragment
+        } else if (Users.authorityList.contains(0) || Users.authorityList.contains(1)) {
+            firstTab.setIcon(R.drawable.baseline_local_grocery_store_black_48);//주문관리
+            secondTab.setIcon(R.drawable.outline_assignment_black_48);//주문현황
+            thirdTab.setIcon(R.drawable.outline_payments_black_48);//미수금현황
+            fourthTab.setIcon(R.drawable.baseline_sync_alt_black_48);//수불현황
+            tabs.selectTab(firstTab);
+            currentTab=0;
+            firstTab.view.setVisibility(View.VISIBLE);
+            secondTab.view.setVisibility(View.VISIBLE);
+            thirdTab.view.setVisibility(View.VISIBLE);
+            fourthTab.view.setVisibility(View.VISIBLE);
+            getSupportFragmentManager().beginTransaction().add(R.id.container, fragmentSaleOrder).commit();//첫실행 fragment
         }
-        if (Users.authorityList.contains(1)) {
-            firstTab.view.setClickable(true);
-            secondTab.view.setClickable(true);
-            thirdTab.view.setClickable(true);
-        }
-
-
         /*tabs.addTab(tabs.newTab().setText("출하"));*/
 
        /* tabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -182,20 +265,68 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
+                currentTab=position;
                 Fragment selected = null;
                 if (position == 0) {
-                    selected = fragmentSaleOrder;
-                    firstTab.setIcon(R.drawable.baseline_local_grocery_store_black_48);
-
-                } else if (position == 1) {
+                    if (Users.authorityList.contains(2)) {
+                        //대리점 권한이 있으면, 주문관리 누르면 바로 연결된 업체,현장 주문서 작성
+                        if(Users.CustomerCode.equals("")){//대리점권한이 있는데, AppUsers에 CustomerCode가 들어있지 않다면 메세지
+                            Toast.makeText(MainActivity2.this, "연결된 거래처 정보가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        secondTab.setIcon(R.drawable.baseline_assignment_black_48);
+                        layoutRefresh.setVisibility(View.VISIBLE);
+                        layoutTotal.setVisibility(View.VISIBLE);
+                        params.weight = (float)7.1;
+                        container.setLayoutParams(params);
+                        secondTab.select();
+                        getLocationNoByCustomerCode();
+                    } else {
+                        selected = fragmentSaleOrder;
+                        firstTab.setIcon(R.drawable.baseline_local_grocery_store_black_48);
+                        layoutRefresh.setVisibility(View.INVISIBLE);
+                        layoutTotal.setVisibility(View.GONE);
+                        params.weight = (float)7.9;
+                        container.setLayoutParams(params);
+                        getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                    }
+                } else if (position == 1) {//주문현황
                     selected = fragmentViewSaleOrder;
                     secondTab.setIcon(R.drawable.baseline_assignment_black_48);
-
+                    layoutRefresh.setVisibility(View.VISIBLE);
+                    layoutTotal.setVisibility(View.VISIBLE);
+                    params.weight = (float)7.1;
+                    container.setLayoutParams(params);
+                    if (Users.authorityList.contains(2)) {
+                        //대리점 권한이 있으면, 본인 업체만 조회
+                        getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                    } else {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                    }
                 } else if (position == 2) {
                     selected = fragmentViewCollection;
                     thirdTab.setIcon(R.drawable.baseline_payments_black_48);
+                    layoutRefresh.setVisibility(View.VISIBLE);
+                    layoutTotal.setVisibility(View.GONE);
+                    params.weight = (float)7.9;
+                    container.setLayoutParams(params);
+                    //대리점 권한이 있으면, 주문관리 누르면 바로 연결된 업체,현장 주문서 작성
+                    getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
                 }
-                getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+
+                else if (position == 3) {
+                    //thirdTab.setIcon(R.drawable.baseline_payments_black_48);
+                    //layoutRefresh.setVisibility(View.INVISIBLE);
+                    //대리점 권한이 있으면, 주문관리 누르면 바로 연결된 업체,현장 주문서 작성
+                    //getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+
+
+                    Intent intent = new Intent(MainActivity2.this, ProductInOutActivity.class);
+                    startActivity(intent);
+
+
+
+                }
             }
 
             @Override
@@ -212,17 +343,258 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-               /* int position = tab.getPosition();
-                if(position == 0) {
+
+                int position = tab.getPosition();
+                currentTab=position;
+                Fragment selected = null;
+                if (position == 0) {
+                    if (Users.authorityList.contains(2)) {
+                        //대리점 권한이 있으면, 주문관리 누르면 바로 연결된 업체,현장 주문서 작성
+                        if(Users.CustomerCode.equals("")){//대리점권한이 있는데, AppUsers에 CustomerCode가 들어있지 않다면 메세지
+                            Toast.makeText(MainActivity2.this, "연결된 거래처 정보가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        secondTab.setIcon(R.drawable.baseline_assignment_black_48);
+                        layoutRefresh.setVisibility(View.VISIBLE);
+                        layoutTotal.setVisibility(View.VISIBLE);
+                        params.weight = (float)7.1;
+                        container.setLayoutParams(params);
+                        secondTab.select();
+                        getLocationNoByCustomerCode();
+                    } else {
+                        selected = fragmentSaleOrder;
+                        firstTab.setIcon(R.drawable.baseline_local_grocery_store_black_48);
+                        layoutRefresh.setVisibility(View.INVISIBLE);
+                        layoutTotal.setVisibility(View.INVISIBLE);
+                        params.weight = (float)7.9;
+                        container.setLayoutParams(params);
+                        getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                    }
+                } else if (position == 1) {//주문현황
+                    selected = fragmentViewSaleOrder;
+                    secondTab.setIcon(R.drawable.baseline_assignment_black_48);
+                    layoutRefresh.setVisibility(View.VISIBLE);
+                    layoutTotal.setVisibility(View.VISIBLE);
+                    params.weight = (float)7.1;
+                    container.setLayoutParams(params);
+                    if (Users.authorityList.contains(2)) {
+                        //대리점 권한이 있으면, 본인 업체만 조회
+                        getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                    } else {
+                        getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                    }
+                } else if (position == 2) {
+                    selected = fragmentViewCollection;
+                    thirdTab.setIcon(R.drawable.baseline_payments_black_48);
+                    layoutRefresh.setVisibility(View.VISIBLE);
+                    layoutTotal.setVisibility(View.VISIBLE);
+                    params.weight = (float)7.1;
+                    container.setLayoutParams(params);
+                    //대리점 권한이 있으면, 주문관리 누르면 바로 연결된 업체,현장 주문서 작성
+                    getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                }
+
+                else if (position == 3) {
+                    //thirdTab.setIcon(R.drawable.baseline_payments_black_48);
+                    //layoutRefresh.setVisibility(View.INVISIBLE);
+                    //대리점 권한이 있으면, 주문관리 누르면 바로 연결된 업체,현장 주문서 작성
+                    //getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+
+
+                    Intent intent = new Intent(MainActivity2.this, ProductInOutActivity.class);
+                    startActivity(intent);
+
+
 
                 }
-                else if(position == 1) {
+            }
+        });
 
-                }*/
+        //progressOFF();
+    }
+
+    public void getNoticeData() {
+        String url = getString(R.string.service_address) + "getNoticeData";
+        ContentValues values = new ContentValues();
+        values.put("AppCode", getString(R.string.app_code));
+        //values.put("SearchString", this.edtSearch.getText().toString());
+        GetNoticeData gsod = new GetNoticeData(url, values);
+        gsod.execute();
+    }
+
+    public class GetNoticeData extends AsyncTask<Void, Void, String> {
+        String url;
+        ContentValues values;
+
+        GetNoticeData(String url, ContentValues values) {
+            this.url = url;
+            this.values = values;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //progress bar를 보여주는 등등의 행위
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String result;
+            RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection();
+            result = requestHttpURLConnection.request(url, values);
+            return result; // 결과가 여기에 담깁니다. 아래 onPostExecute()의 파라미터로 전달됩니다.
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // 통신이 완료되면 호출됩니다.
+            // 결과에 따른 UI 수정 등은 여기서 합니다
+            try {
+                JSONArray jsonArray = new JSONArray(result);
+                String ErrorCheck = "";
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject child = jsonArray.getJSONObject(i);
+                    if (!child.getString("ErrorCheck").equals("null")) {//문제가 있을 시, 에러 메시지 호출 후 종료
+                        ErrorCheck = child.getString("ErrorCheck");
+                        //Toast.makeText(getBaseContext(), ErrorCheck, Toast.LENGTH_SHORT).show();
+                        showErrorDialog(MainActivity2.this, ErrorCheck, 2);
+                        return;
+                    }
+                    noticeData = child.getString("AppRemark");
+                }
+                viewNotice();
+            } catch (Exception e) {
+
+                e.printStackTrace();
+
+            } finally {
+            }
+        }
+    }
+
+    private void viewNotice(){
+        LayoutInflater inflater = getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.dialog_notice, null);
+        AlertDialog.Builder buider = new AlertDialog.Builder(this); //AlertDialog.Builder 객체 생성
+        //  buider.setIcon(android.R.drawable.ic_menu_add); //제목옆의 아이콘 이미지(원하는 이미지 설정)
+        buider.setView(dialogView); //위에서 inflater가 만든 dialogView 객체 세팅 (Customize)
+        TextView tvTitle=dialogView.findViewById(R.id.tvTitle);
+        try {
+            tvTitle.setText("변경사항(version "+getBaseContext().getPackageManager().getPackageInfo(getBaseContext().getPackageName(), 0).versionName+")");
+        } catch (PackageManager.NameNotFoundException e) {
+            tvTitle.setText("변경사항");
+        }
+        TextView tvContent=dialogView.findViewById(R.id.tvContent);
+        tvContent.setText(noticeData);
+        final AlertDialog dialog = buider.create();
+        //Dialog의 바깥쪽을 터치했을 때 Dialog를 없앨지 설정
+        dialog.setCanceledOnTouchOutside(false);//없어지지 않도록 설정
+        //Dialog 보이기
+        dialog.show();
+        Button btnOK=dialogView.findViewById(R.id.btnOK);
+        btnOK.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CheckBox chkNoView=dialogView.findViewById(R.id.chkNoView);
+
+                if(chkNoView.isChecked()){
+                    SharedPreferences.Editor editor = noticePref.edit();
+                    editor.putBoolean("viewNotice", false);
+                    editor.commit();
+                }
+                dialog.dismiss();
             }
         });
     }
 
+    private void getLocationNoByCustomerCode() {
+        String url = getString(R.string.service_address) + "getLocationNoByCustomerCode";
+        ContentValues values = new ContentValues();
+        values.put("CustomerCode", Users.CustomerCode);
+        //values.put("CustomerCode", saleOrderNo);
+        GetLocationNoByCustomerCode gsod = new GetLocationNoByCustomerCode(url, values);
+        gsod.execute();
+    }
+
+    public class GetLocationNoByCustomerCode extends AsyncTask<Void, Void, String> {
+        String url;
+        ContentValues values;
+
+        GetLocationNoByCustomerCode(String url, ContentValues values) {
+            this.url = url;
+            this.values = values;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            startProgress();
+            //progress bar를 보여주는 등등의 행위
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String result;
+            RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection();
+            result = requestHttpURLConnection.request(url, values);
+            return result; // 결과가 여기에 담깁니다. 아래 onPostExecute()의 파라미터로 전달됩니다.
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // 통신이 완료되면 호출됩니다.
+            // 결과에 따른 UI 수정 등은 여기서 합니다
+            try {
+                JSONArray jsonArray = new JSONArray(result);
+                String ErrorCheck = "";
+
+                String CustomerCode="";
+                String CustomerName="";
+                String LocationNo="";
+                String LocationName="";
+                //String tempSaleOrderNo = "";
+                //partNameDic = new ArrayList<>();
+                //partSpecNameDic = new ArrayList<>();
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject child = jsonArray.getJSONObject(i);
+                    if (!child.getString("ErrorCheck").equals("null")) {//문제가 있을 시, 에러 메시지 호출 후 종료
+                        ErrorCheck = child.getString("ErrorCheck");
+                        //Toast.makeText(getBaseContext(), ErrorCheck, Toast.LENGTH_SHORT).show();
+                        showErrorDialog(MainActivity2.this, ErrorCheck, 2);
+                        return;
+                    }
+                    CustomerCode = child.getString("CustomerCode");
+                    CustomerName = child.getString("CustomerName");
+                    LocationNo = child.getString("LocationNo");
+                    LocationName = child.getString("LocationName");
+                }
+
+                Intent i = new Intent(MainActivity2.this, SearchAvailablePartActivity.class);
+                i.putExtra("locationNo", LocationNo);
+                i.putExtra("locationName", LocationName);
+                i.putExtra("customerCode", CustomerCode);
+                i.putExtra("customerName", CustomerName);
+                startActivityResult.launch(i);
+                //sdf
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            } finally {
+                progressOFF();
+            }
+        }
+    }
+
+    public ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            new ActivityResultCallback<ActivityResult>() {
+                @Override
+                public void onActivityResult(ActivityResult result) {
+                    String fromDate = fragmentViewSaleOrder.tyear + "-" + (fragmentViewSaleOrder.tmonth + 1) + "-" + fragmentViewSaleOrder.tdate;
+                    fragmentViewSaleOrder.getViewSaleOrderData(fromDate);
+                }
+            });
 
     @Override
     public int checkTagState(String tag) {

@@ -24,7 +24,12 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -36,6 +41,7 @@ import com.symbol.steelsales.Adapter.CustomerLocationAdapter;
 import com.symbol.steelsales.Application.Application;
 import com.symbol.steelsales.BuildConfig;
 import com.symbol.steelsales.MainActivity2;
+import com.symbol.steelsales.Object.Dept;
 import com.symbol.steelsales.Object.Location;
 import com.symbol.steelsales.Object.Users;
 import com.symbol.steelsales.R;
@@ -62,7 +68,6 @@ public class SplashScreenActivity extends BaseActivity {
     SharedPreferences _pref;
     Boolean isShortcut = false;//아이콘의 생성
     private boolean mIsRegisterReceiver;
-
     /**
      * Called when the activity is first created.
      */
@@ -73,14 +78,17 @@ public class SplashScreenActivity extends BaseActivity {
 
         _pref = getSharedPreferences("kumkang", MODE_PRIVATE);//sharedPreferences 이름: "kumkang"에 저장
         isShortcut = _pref.getBoolean("isShortcut", false);//"isShortcut"에 들어있는값을 가져온다.
+
         if (!isShortcut)//App을 처음 깔고 시작했을때 이전에 깐적이 있는지없는지 검사하고, 이름과 아이콘을 설정한다.
         {
             addShortcut(this);
         }
 
+        getDPI();
+
         checkServerVersion();//버전을 체크-> 안쪽에 권한
 
-        Configuration configuration = getResources().getConfiguration();
+      /*  Configuration configuration = getResources().getConfiguration();
         if (configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             if (configuration.smallestScreenWidthDp < Application.minScreenWidth) {
                 //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
@@ -89,10 +97,7 @@ public class SplashScreenActivity extends BaseActivity {
             if (configuration.screenWidthDp < Application.minScreenWidth) {
                 //setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             }
-        }
-
-
-        Users.ScreenInches = (float) (getScreenInches());
+        }*/
 
         /* New Handler to start the Menu-Activity
          * and close this Splash-Screen after some seconds.*/
@@ -109,22 +114,24 @@ public class SplashScreenActivity extends BaseActivity {
         }, SPLASH_DISPLAY_LENGTH);*/
     }
 
-    int getScreenInches() {
+    private void getDPI() {
+        int margin = 0;
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int dpi= metrics.densityDpi;
 
-        DisplayMetrics dm = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(dm);
-        int width = dm.widthPixels;
-        int height = dm.heightPixels;
-        double wi = (double) width / (double) dm.xdpi;
-        double hi = (double) height / (double) dm.ydpi;
-        double x = Math.pow(wi, 2);
-        double y = Math.pow(hi, 2);
-        double screenInches = Math.sqrt(x + y);
-
-        return (int) Math.ceil(screenInches);
+        if (dpi<=160) { // mdpi
+            Users.Dpi = "mdpi";
+        } else if (dpi<=240) { // hdpi
+            Users.Dpi = "hdpi";
+        } else if (dpi<=320) { // xhdpi
+            Users.Dpi = "xhdpi";
+        } else if (dpi<=480) { // xxhdpi
+            Users.Dpi = "xxhdpi";
+        } else if (dpi<=640) { // xxxhdpi
+            Users.Dpi = "xxxhdpi";
+        }
     }
-
-
     private void addShortcut(Context context) {
 
         Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
@@ -210,9 +217,9 @@ public class SplashScreenActivity extends BaseActivity {
                 }
 
             } catch (Exception er) {
+                Toast.makeText(SplashScreenActivity.this, "확정 되었습니다.", Toast.LENGTH_SHORT).show();
 
             } finally {
-                progressOFF();
             }
         }
     }
@@ -425,7 +432,6 @@ public class SplashScreenActivity extends BaseActivity {
         protected void onPreExecute() {
             super.onPreExecute();
             //progress bar를 보여주는 등의 행위
-            startProgress();
         }
 
         @Override
@@ -468,11 +474,17 @@ public class SplashScreenActivity extends BaseActivity {
                         Users.UserID = child.getString("UserID");
                         Users.authorityList.add(Integer.parseInt(child.getString("Authority")));
                         Users.authorityNameList.add(child.getString("AuthorityName"));
+                        Users.CustomerCode = child.getString("CustomerCode");
+                        Users.DeptCode=child.getString("DeptCode");
+                        Users.DeptName=child.getString("DeptName");
+
+
                     }
                     GetCustomerLocationAll();
                 }
 
             } catch (Exception e) {
+                progressOFF();
 
             } finally {
             }
@@ -535,11 +547,24 @@ public class SplashScreenActivity extends BaseActivity {
                     location.CustomerName = child.getString("CustomerName");
                     Users.locationArrayList.add(location);
                 }
+                Dept sDept= new Dept();
+                sDept.deptCode="14100";
+                sDept.deptName="서울철강영업팀";
+                sDept.index=0;
+                Dept pDept= new Dept();
+                pDept.deptCode="14200";
+                pDept.deptName="부산철강영업팀";
+                pDept.index=1;
+                Users.deptArrayList= new ArrayList<>();
+                Users.deptArrayList.add(sDept);
+                Users.deptArrayList.add(pDept);
 
+                progressOFF();
                 Intent intent = new Intent(SplashScreenActivity.this, MainActivity2.class);
                 startActivity(intent);
 
             } catch (Exception e) {
+
                 e.printStackTrace();
 
             } finally {

@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -44,6 +45,7 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
     ListView listview;
     ArrayList<Location> locationArrayList;
     CustomerLocationAdapter customerLocationAdapter;
+    LinearLayout flayout;
 
     Button btnViewData;
     Button btnStock;
@@ -105,7 +107,7 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
 
 
             customerLocationAdapter= new CustomerLocationAdapter
-                    (context, R.layout.listview_customerlocation_row, list);
+                    (context, R.layout.listview_customerlocation_row, list,"주문관리");
             listview.setAdapter(customerLocationAdapter);
         }
     }
@@ -116,6 +118,7 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.layout1, container, false);
         this.txtState = rootView.findViewById(R.id.txtState);
         this.edtSearch = rootView.findViewById(R.id.edtSearch);
+        this.flayout =  rootView.findViewById(R.id.flayout);
 
         this.edtSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -141,7 +144,7 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 //getCustomerLocationBySearch();
                 if(s.toString().equals(""))
-                    getCustomerLocation();
+                    getCustomerLocation(false);
                 setChangeListData(s.toString());
             }
 
@@ -168,7 +171,8 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 edtSearch.setGravity(Gravity.START);
-                edtSearch.clearFocus();
+                //edtSearch.clearFocus();
+                flayout.requestFocus();
                 HideKeyBoard(context);
                 return false;
             }
@@ -181,32 +185,36 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }*/
-        getCustomerLocation();
+        getCustomerLocation(true);
 
         return rootView;
     }
 
 
-    public void getCustomerLocation() {
+    public void getCustomerLocation(boolean initStart) {
         String url = getString(R.string.service_address) + "getCustomerLocation";
         ContentValues values = new ContentValues();
         values.put("BusinessClassCode", 2);
-        GetCustomerLocation gsod = new GetCustomerLocation(url, values);
+        GetCustomerLocation gsod = new GetCustomerLocation(url, values, initStart);
         gsod.execute();
     }
 
     public class GetCustomerLocation extends AsyncTask<Void, Void, String> {
+        boolean initStart;//최초실행
         String url;
         ContentValues values;
 
-        GetCustomerLocation(String url, ContentValues values) {
+        GetCustomerLocation(String url, ContentValues values, boolean initStart) {
             this.url = url;
             this.values = values;
+            this.initStart = initStart;
         }
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            //if(initStart)
+                //startProgress();
             //progress bar를 보여주는 등등의 행위
         }
 
@@ -243,14 +251,14 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
                     locationArrayList.add(location);
                 }
                 customerLocationAdapter= new CustomerLocationAdapter
-                        (context, R.layout.listview_customerlocation_row, locationArrayList);
+                        (context, R.layout.listview_customerlocation_row, locationArrayList,"주문관리");
                 listview.setAdapter(customerLocationAdapter);
 
             } catch (Exception e) {
                 e.printStackTrace();
 
             } finally {
-                progressOFF();
+                //progressOFF();
             }
         }
     }
@@ -329,7 +337,7 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
         protected void onPreExecute() {
             super.onPreExecute();
             //progress bar를 보여주는 등의 행위
-            startProgress();
+            //startProgress();
         }
 
         @Override
@@ -365,7 +373,7 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                progressOFF();
+                //progressOFF();
             }
 
 

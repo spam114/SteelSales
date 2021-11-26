@@ -14,9 +14,7 @@ import com.symbol.steelsales.Object.SaleOrder;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-public class MyWatcher2 implements TextWatcher {
-
-    private TextInputEditText edit;
+public class MyWatcher3 implements TextWatcher {
     private TextInputEditText edtOrderQty;
     private TextView txtOrderPrice;
     private TextView txtOrderAmount;
@@ -26,10 +24,8 @@ public class MyWatcher2 implements TextWatcher {
     private SaleOrder item;
     private View row;
     TextView txtWeight;
-    private TextView txtTotalWeight;
-    public MyWatcher2(TextInputEditText edit, TextInputEditText edtOrderQty, TextView txtOrderPrice, TextView txtOrderAmount,
-                      SaleOrderAdapter saleOrderAdapter, TextView txtTotal, ArrayList data, View row, TextView txtWeight, TextView txtTotalWeight) {
-        this.edit = edit;
+    public MyWatcher3( TextInputEditText edtOrderQty, TextView txtOrderPrice, TextView txtOrderAmount,
+                      SaleOrderAdapter saleOrderAdapter, TextView txtTotal, ArrayList data, View row, TextView txtWeight) {
         this.edtOrderQty = edtOrderQty;
         this.txtOrderPrice = txtOrderPrice;
         this.txtOrderAmount = txtOrderAmount;
@@ -38,53 +34,35 @@ public class MyWatcher2 implements TextWatcher {
         this.data = data;
         this.row=row;
         this.txtWeight=txtWeight;
-        this.txtTotalWeight=txtTotalWeight;
     }
 
     @Override
     public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
     }
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         //Log.d("TAG", "onTextChanged: " + s);
-        this.item = (SaleOrder) edit.getTag();
+        String tempString = s.toString().replace(",","");
+        this.item = (SaleOrder) txtOrderPrice.getTag();
 
         if (item != null) {
-            String tempString=s.toString();
-            if(tempString.equals("-"))
-                tempString="0";
-
-            String tempString2=item.discountRate;
-            if(tempString2.equals(""))
-                tempString2="0";
-
-            if(!tempString.equals(tempString2)){
-                //row.setBackgroundColor(Color.YELLOW);
-                item.isChanged=true;
-            }
-            item.discountRate = tempString;
+            item.orderPrice = tempString;
         }
     }
 
 
     @Override
     public void afterTextChanged(Editable s) {
-       //String test=s.toString();
-        if(s.length()>=1){
-            char schar = s.toString().charAt(s.length()-1);
-            String test=String.valueOf(schar);
-            if (test.equals("."))
-                return;
-        }
-
-
+        //String test=s.toString();
+        String tempString = s.toString().replace(",","");
         DecimalFormat myFormatter = new DecimalFormat("###,###");
 
         int orderQty = 0;//주문수량
-        double discountRate = 0;//할인율
         double orderPrice = 0;//주문단가
         double orderAmount = 0;//주문금액
+
 
         switch(edtOrderQty.getText().toString()) {
             case "":
@@ -93,16 +71,8 @@ public class MyWatcher2 implements TextWatcher {
             default:
                 orderQty = Integer.parseInt(edtOrderQty.getText().toString());
         }
-
-        if (!s.toString().equals("") && !s.toString().equals("-")) {
-            discountRate = Double.parseDouble(s.toString());
-        }
-        orderPrice = Math.round(discountRate * Double.parseDouble(item.marketPrice) / 100 + Double.parseDouble(item.marketPrice));
+        orderPrice = Double.parseDouble(tempString);
         orderAmount = orderQty * (int) orderPrice;
-
-        String strOrderPrice = myFormatter.format((int) orderPrice);
-        txtOrderPrice.setText(strOrderPrice);
-
 
         if(orderPrice!=0){
             String strOrderAmount = myFormatter.format(orderAmount);
@@ -116,14 +86,10 @@ public class MyWatcher2 implements TextWatcher {
                 item.orderAmount=orderAmount;
                 item.discountRate=Integer.toString((int)discountRate);*/
 
-        item.Weight=item.logicalWeight*orderQty;
-
         double totalAmount = 0;
-        double totalWeight = 0;
         for (int i = 0; i < saleOrderAdapter.getCount(); i++) {
             SaleOrder item = (SaleOrder) data.get(i);
             totalAmount += item.orderAmount;
-            totalWeight += item.Weight;
         }
 
         if(item.isChanged)
@@ -132,9 +98,7 @@ public class MyWatcher2 implements TextWatcher {
             row.setBackgroundColor(Color.TRANSPARENT);
 
         String strTotalPrice = myFormatter.format((int) totalAmount);
-        String strTotalWeight = myFormatter.format((int) totalWeight);
         txtTotal.setText("합계: " + strTotalPrice + " 원");
-        txtTotalWeight.setText("중량: " + strTotalWeight + " KG");
         //notifyDataSetChanged();
     }
 }

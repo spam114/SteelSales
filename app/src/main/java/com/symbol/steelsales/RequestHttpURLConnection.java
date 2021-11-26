@@ -139,7 +139,7 @@ public class RequestHttpURLConnection {
                 sObject.put("PartSpec", arrayList.get(i).partSpec);
                 sObject.put("OrderQty", arrayList.get(i).orderQty);
                 sObject.put("OrderPrice", arrayList.get(i).orderPrice);
-                sObject.put("OrderAmount", Double.toString(arrayList.get(i).orderAmount));
+                sObject.put("OrderAmount", String.format("%f", arrayList.get(i).orderAmount));
                 sObject.put("DiscountRate", arrayList.get(i).discountRate);
                 jArray.put(sObject);
             }

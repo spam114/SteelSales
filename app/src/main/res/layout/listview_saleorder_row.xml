@@ -9,39 +9,48 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/flayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="7dp"
         android:layout_marginTop="8dp"
+        android:layout_marginRight="8dp"
         android:layout_marginBottom="2dp"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:weightSum="10">
-
-        <ImageView
-            android:id="@+id/imvRemove"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:adjustViewBounds="true"
-            app:srcCompat="@drawable/baseline_remove_black_48" />
 
         <TextView
             android:id="@+id/txtPartName"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
-            android:layout_weight="4"
-            android:text="품명"
+            android:layout_marginLeft="2dp"
+            android:layout_weight="4.6"
+            android:text="품명/규격"
             android:textColor="#000000"
             android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/txtPartSpecName"
+            android:id="@+id/txtWeight"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="7dp"
-            android:layout_weight="5"
-            android:text="규격"
+            android:layout_marginLeft="2dp"
+            android:layout_weight="2.6"
+            android:gravity="right"
+            android:text="중량"
+            android:textColor="#000000"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/txtStockQty"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:layout_weight="2.8"
+            android:gravity="right"
+            android:text="가용재고"
             android:textColor="#000000"
             android:textSize="16sp" />
 
@@ -50,7 +59,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="7dp"
         android:layout_marginTop="2dp"
+        android:layout_marginRight="8dp"
         android:layout_marginBottom="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
@@ -61,11 +72,11 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2.4"
+            android:layout_weight="2.3"
             android:hint="수량"
             android:textColorHint="@color/medium_gray">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.symbol.steelsales.BackPressEditText
                 android:id="@+id/edtOrderQty"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -73,9 +84,11 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="2dp"
                 android:layout_marginBottom="2dp"
+                android:importantForAutofill="no"
                 android:gravity="center_vertical|end"
                 android:imeOptions="actionDone"
                 android:inputType="numberSigned"
+                android:maxLength="5"
                 android:numeric="signed"
                 android:padding="3dp"
                 android:singleLine="true"
@@ -88,11 +101,11 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2.4"
+            android:layout_weight="2.3"
             android:hint="할인율"
             android:textColorHint="@color/medium_gray">
 
-            <com.google.android.material.textfield.TextInputEditText
+            <com.symbol.steelsales.BackPressEditText
                 android:id="@+id/edtDiscountRate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -100,9 +113,11 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="2dp"
                 android:layout_marginBottom="2dp"
+                android:autoText="false"
+                android:importantForAutofill="no"
                 android:gravity="center_vertical|end"
                 android:imeOptions="actionDone"
-                android:inputType="numberSigned"
+                android:inputType="numberSigned|numberDecimal"
                 android:padding="3dp"
                 android:singleLine="true"
                 android:textSize="16sp" />
@@ -114,7 +129,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="2dp"
-            android:layout_weight="2.4"
+            android:layout_weight="2.6"
             android:gravity="end"
             android:text="단가"
             android:textColor="#000000"
@@ -125,7 +140,6 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="2dp"
-            android:layout_marginRight="3dp"
             android:layout_weight="2.8"
             android:gravity="right|center_vertical|end"
             android:text="금액"

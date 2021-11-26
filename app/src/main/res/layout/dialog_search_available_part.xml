@@ -170,12 +170,12 @@
 
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSave"
+            android:id="@+id/btnCancel"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="99.5"
             android:background="@android:color/transparent"
-            android:text="저장"
+            android:text="취소"
             android:textColor="#434345"
             android:textSize="18sp" />
 
@@ -186,14 +186,15 @@
             android:background="@color/inactive_text" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnCancel"
+            android:id="@+id/btnSave"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="99.5"
             android:background="@android:color/transparent"
-            android:text="취소"
+            android:text="저장"
             android:textColor="#434345"
             android:textSize="18sp" />
+
     </LinearLayout>
 
 </LinearLayout>

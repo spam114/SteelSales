@@ -11,31 +11,29 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import androidx.activity.result.contract.ActivityResultContracts;
-
 import com.symbol.steelsales.Activity.CollectionViewActivity;
-import com.symbol.steelsales.Activity.SearchAvailablePartActivity;
 import com.symbol.steelsales.Application.ApplicationClass;
 import com.symbol.steelsales.Interface.BaseActivityInterface;
-import com.symbol.steelsales.Object.Location;
+import com.symbol.steelsales.Object.CollectionData;
 import com.symbol.steelsales.R;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-public class CustomerLocationAdapter extends ArrayAdapter<Location> implements BaseActivityInterface {
+public class CustomerCollectionAdapter extends ArrayAdapter<CollectionData> implements BaseActivityInterface {
 
     Context context;
     int layoutRsourceId;
     ArrayList data;
-    String type="";
+    String type = "";
 
 
-    public CustomerLocationAdapter(Context context, int layoutResourceID, ArrayList data, String type) {
+    public CustomerCollectionAdapter(Context context, int layoutResourceID, ArrayList data, String type) {
         super(context, layoutResourceID, data);
         this.context = context;
         this.layoutRsourceId = layoutResourceID;
         this.data = data;
-        this.type=type;
+        this.type = type;
     }
 
     @Override
@@ -48,33 +46,26 @@ public class CustomerLocationAdapter extends ArrayAdapter<Location> implements B
             row = inflater.inflate(layoutRsourceId, null);
         }
 
-        final Location item = (Location) data.get(position);
+        final CollectionData item = (CollectionData) data.get(position);
         if (item != null) {
 
             TextView txtCustomerName = (TextView) row.findViewById(R.id.txtCustomerName);
-            txtCustomerName.setText(item.CustomerName+" ["+item.CustomerCode+"]");
+            txtCustomerName.setText(item.CustomerName);
 
-            if(type.equals("주문관리")){
-                Intent i = new Intent(getContext(), SearchAvailablePartActivity.class);
-                i.putExtra("locationNo", item.LocationNo);
-                i.putExtra("locationName", item.LocationName);
-                i.putExtra("customerCode", item.CustomerCode);
-                i.putExtra("customerName", item.CustomerName);
-                row.setOnClickListener(v -> {
-                    context.startActivity(i);
-                });
-            }
-            else if(type.equals("미수금현황")){
-                Intent i = new Intent(getContext(), CollectionViewActivity.class);
-                i.putExtra("customerCode", item.CustomerCode);
-                i.putExtra("customerName", item.CustomerName);
-                row.setOnClickListener(v -> {
-                    context.startActivity(i);
-                });
-            }
+            TextView txtUnCollectionAmt = (TextView) row.findViewById(R.id.txtUnCollectionAmt);
+            DecimalFormat myFormatter = new DecimalFormat("###,###");
 
+            double dbUnCollectionAmt=Double.parseDouble(item.UnCollectionAmt);
+            String strUnCollectionAmt = myFormatter.format(dbUnCollectionAmt);
 
+            txtUnCollectionAmt.setText(strUnCollectionAmt);
 
+            Intent i = new Intent(getContext(), CollectionViewActivity.class);
+            i.putExtra("customerCode", item.CustomerCode);
+            i.putExtra("customerName", item.CustomerName);
+            row.setOnClickListener(v -> {
+                context.startActivity(i);
+            });
         }
         return row;
     }
@@ -86,12 +77,12 @@ public class CustomerLocationAdapter extends ArrayAdapter<Location> implements B
 
     @Override
     public void progressON() {
-        ApplicationClass.getInstance().progressON((Activity)context, null);
+        ApplicationClass.getInstance().progressON((Activity) context, null);
     }
 
     @Override
     public void progressON(String message) {
-        ApplicationClass.getInstance().progressON((Activity)context, message);
+        ApplicationClass.getInstance().progressON((Activity) context, message);
     }
 
     @Override
