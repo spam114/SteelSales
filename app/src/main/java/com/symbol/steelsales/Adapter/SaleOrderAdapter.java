@@ -181,10 +181,18 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
                     if(actionId == EditorInfo.IME_ACTION_DONE){ // IME_ACTION_SEARCH , IME_ACTION_GO
-
                         layoutTop.requestFocus();
                         HideKeyBoard(context);
                     }
+                    return false;
+                }
+            });
+
+            edtDiscountRate.setOnKeyListener(new View.OnKeyListener() {
+                @Override
+                public boolean onKey(View view, int i, KeyEvent keyEvent) {
+                    item.directPrice=0;
+                    item.initState=false;
                     return false;
                 }
             });
@@ -294,12 +302,14 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
 
                             double tempPrice=Double.parseDouble(edtOrderPrice.getText().toString());
                             //item.orderPrice = edtOrderPrice.getText().toString();
-                            item.marketPrice = edtOrderPrice.getText().toString();
+                            item.directPrice = Double.parseDouble(edtOrderPrice.getText().toString());
                             item.discountRate="0";
                             String strOrderPrice = myFormatter.format((int)tempPrice);
                             txtOrderPrice.setText(strOrderPrice);
                             //notifyDataSetChanged();
                             edtDiscountRate.setText("-");
+                            finalRow.setBackgroundColor(Color.parseColor("#FFF5F5DC"));
+                            item.isChanged=true;
                             dialog.dismiss();
                         }
                     });

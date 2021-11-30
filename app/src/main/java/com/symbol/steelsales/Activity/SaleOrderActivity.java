@@ -718,6 +718,7 @@ public class SaleOrderActivity extends BaseActivity {
                     saleOrder.orderAmount = Double.parseDouble(child.getString("OrderAmount"));
                     saleOrder.stockQty = Double.parseDouble(child.getString("StockQty"));
                     saleOrder.Weight = Double.parseDouble(saleOrder.orderQty)*saleOrder.logicalWeight;
+                    saleOrder.initState=true;
 
                     Remark1 = child.getString("Remark1");
                     Remark2 = child.getString("Remark2");

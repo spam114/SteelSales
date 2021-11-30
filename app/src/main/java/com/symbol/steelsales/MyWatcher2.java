@@ -15,7 +15,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class MyWatcher2 implements TextWatcher {
-
+//할인율 변경
     private TextInputEditText edit;
     private TextInputEditText edtOrderQty;
     private TextView txtOrderPrice;
@@ -48,6 +48,10 @@ public class MyWatcher2 implements TextWatcher {
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
         //Log.d("TAG", "onTextChanged: " + s);
+        if(start==1 && before==0 && count==1) {
+            item.directPrice = 0;
+            item.initState=false;
+        }
         this.item = (SaleOrder) edit.getTag();
 
         if (item != null) {
@@ -78,13 +82,18 @@ public class MyWatcher2 implements TextWatcher {
                 return;
         }
 
-
         DecimalFormat myFormatter = new DecimalFormat("###,###");
 
         int orderQty = 0;//주문수량
         double discountRate = 0;//할인율
         double orderPrice = 0;//주문단가
         double orderAmount = 0;//주문금액
+        double calcPrice=0;
+
+        if(item.directPrice!=0)
+            calcPrice = item.directPrice;
+        else
+            calcPrice=Double.parseDouble(item.marketPrice);
 
         switch(edtOrderQty.getText().toString()) {
             case "":
@@ -97,12 +106,16 @@ public class MyWatcher2 implements TextWatcher {
         if (!s.toString().equals("") && !s.toString().equals("-")) {
             discountRate = Double.parseDouble(s.toString());
         }
-        orderPrice = Math.round(discountRate * Double.parseDouble(item.marketPrice) / 100 + Double.parseDouble(item.marketPrice));
+
+        if(!item.initState)
+            orderPrice = Math.round(discountRate * calcPrice / 100 + calcPrice);
+        else
+            orderPrice = Double.parseDouble(item.orderPrice);
+
         orderAmount = orderQty * (int) orderPrice;
 
         String strOrderPrice = myFormatter.format((int) orderPrice);
         txtOrderPrice.setText(strOrderPrice);
-
 
         if(orderPrice!=0){
             String strOrderAmount = myFormatter.format(orderAmount);

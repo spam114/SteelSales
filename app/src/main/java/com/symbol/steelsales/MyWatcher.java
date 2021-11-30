@@ -15,7 +15,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 public class MyWatcher implements TextWatcher {
-
+//수량 변경
     private TextInputEditText edit;
 
     private TextInputEditText edtDiscountRate;
@@ -71,13 +71,23 @@ public class MyWatcher implements TextWatcher {
         double discountRate=0;//할인율
         double orderPrice=0;//주문단가
         double orderAmount=0;//주문금액
+        double calcPrice=0;
+        if(item.directPrice!=0)
+            calcPrice = item.directPrice;
+        else
+            calcPrice=Double.parseDouble(item.marketPrice);
+
         if(!s.toString().equals("")){
             orderQty=Integer.parseInt(s.toString());
         }
         if(!edtDiscountRate.getText().toString().equals("") && !edtDiscountRate.getText().toString().equals("-")){
             discountRate=Double.parseDouble(edtDiscountRate.getText().toString());
         }
-        orderPrice=Math.round(discountRate * Double.parseDouble(item.marketPrice)/100+Double.parseDouble(item.marketPrice));
+        if(!item.initState)
+            orderPrice = Math.round(discountRate * calcPrice / 100 + calcPrice);
+        else
+            orderPrice = Double.parseDouble(item.orderPrice);
+
         orderAmount=orderQty*(int)orderPrice;
 
         if(orderPrice!=0){
