@@ -13,12 +13,12 @@
         android:layout_marginBottom="8dp"
         android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:weightSum="8">
+        android:weightSum="15">
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2.6"
+            android:layout_weight="5.5"
             android:orientation="vertical">
 
             <TextView
@@ -27,7 +27,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:gravity="start|center_vertical"
-                android:text="품명/규격"
+                android:text="품명"
                 android:textColor="#000000"
                 android:textSize="16sp" />
         </LinearLayout>
@@ -35,59 +35,19 @@
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1.8"
+            android:layout_weight="5.5"
             android:gravity="end"
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/txtOutQtySeoul"
+                android:id="@+id/txtPartSpec"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:text="출고(서울)"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="5dp"
+                android:text="규격"
                 android:textColor="#304FFE"
                 android:textSize="16sp" />
-
-            <TextView
-                android:id="@+id/txtOutQtyPusan"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="출고(부산)"
-                android:textColor="#AA4A03"
-                android:textSize="16sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1.8"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginRight="3dp"
-                android:layout_weight="3"
-                android:gravity="end"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/txtMinapSeoul"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:text="미납(서울)"
-                    android:textColor="#304FFE"
-                    android:textSize="16sp" />
-
-                <TextView
-                    android:id="@+id/txtMinapPusan"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="미납(부산)"
-                    android:textColor="#AA4A03"
-                    android:textSize="16sp" />
-            </LinearLayout>
 
         </LinearLayout>
 
@@ -95,7 +55,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
-            android:layout_weight="1.8"
+            android:layout_weight="4"
             android:gravity="center_vertical|end"
             android:orientation="vertical">
 

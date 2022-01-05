@@ -68,6 +68,11 @@
             android:screenOrientation="portrait"
             >
         </activity>
+        <activity android:name=".Activity.MinapActivity"
+            tools:ignore="LockedOrientationActivity"
+            android:screenOrientation="portrait"
+            >
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"

@@ -1,6 +1,7 @@
 package com.symbol.steelsales.Activity;
 
 import android.content.Context;
+import android.os.Handler;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,8 +22,16 @@ public class BaseActivity extends AppCompatActivity {
         ApplicationClass.getInstance().progressON(this, message);
     }
 
-    public void progressOFF() {
-        ApplicationClass.getInstance().progressOFF();
+    public void progressON(String message, Handler handler) {
+        ApplicationClass.getInstance().progressON(this, message, handler);
+    }
+
+    public void progressOFF(String className) {
+        ApplicationClass.getInstance().progressOFF(className);
+    }
+
+    public void progressOFF2(String className) {
+        ApplicationClass.getInstance().progressOFF2(className);
     }
 
     public void showErrorDialog(Context context, String message, int type) {

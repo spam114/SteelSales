@@ -29,10 +29,7 @@ public class ProductInOutAdapter extends ArrayAdapter<Stock> implements BaseActi
     ArrayList data;
 
     TextView txtPart;
-    TextView txtOutQtySeoul;
-    TextView txtOutQtyPusan;
-    TextView txtMinapSeoul;
-    TextView txtMinapPusan;
+    TextView txtPartSpec;
     TextView txtQty;
 
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList. (원본 데이터 리스트)
@@ -67,25 +64,15 @@ public class ProductInOutAdapter extends ArrayAdapter<Stock> implements BaseActi
         if (item != null) {
             //row.setTag(item);
             txtPart=row.findViewById(R.id.txtPart);
-            txtOutQtySeoul=row.findViewById(R.id.txtOutQtySeoul);
-            txtOutQtyPusan=row.findViewById(R.id.txtOutQtyPusan);
-            txtMinapSeoul=row.findViewById(R.id.txtMinapSeoul);
-            txtMinapPusan=row.findViewById(R.id.txtMinapPusan);
+            txtPartSpec=row.findViewById(R.id.txtPartSpec);
             txtQty=row.findViewById(R.id.txtQty);
 
             DecimalFormat myFormatter = new DecimalFormat("###,###");
 
-            String strOutQtySeoul = myFormatter.format(Double.parseDouble(item.OutQtySeoul));
-            String strOutQtyPusan = myFormatter.format(Double.parseDouble(item.OutQtyPusan));
-            String strMinapSeoul = myFormatter.format(Double.parseDouble(item.MinapSeoul));
-            String strMinapPusan = myFormatter.format(Double.parseDouble(item.MinapPusan));
             String strQty = myFormatter.format(Double.parseDouble(item.Qty));
 
-            txtPart.setText(item.PartName+"\n"+item.PartSpecName);
-            txtOutQtySeoul.setText(strOutQtySeoul);
-            txtOutQtyPusan.setText(strOutQtyPusan);
-            txtMinapSeoul.setText(strMinapSeoul);
-            txtMinapPusan.setText(strMinapPusan);
+            txtPart.setText(item.PartName);
+            txtPartSpec.setText(item.PartSpecName);
             txtQty.setText(strQty);
 
 
@@ -144,8 +131,18 @@ public class ProductInOutAdapter extends ArrayAdapter<Stock> implements BaseActi
     }
 
     @Override
-    public void progressOFF() {
-        ApplicationClass.getInstance().progressOFF();
+    public void progressON(String message, Handler handler) {
+        ApplicationClass.getInstance().progressON((Activity)context, message, handler);
+    }
+
+    @Override
+    public void progressOFF(String className) {
+        ApplicationClass.getInstance().progressOFF(className);
+    }
+
+    @Override
+    public void progressOFF2(String className) {
+        ApplicationClass.getInstance().progressOFF2(className);
     }
 
     @Override
@@ -159,16 +156,14 @@ public class ProductInOutAdapter extends ArrayAdapter<Stock> implements BaseActi
     }
 
     private void startProgress() {
-
-        progressON("Loading...");
-
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
-
+        }, 10000);
+        progressON("Loading...", handler);
     }
 
 

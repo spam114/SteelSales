@@ -22,7 +22,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 
 //가용재고가 표기되는 품목선택 액티비티
-public class ProductInOutActivity extends BaseActivity {
+public class MinapActivity extends BaseActivity {
 
     ArrayList<String> partNameDic;//품명 검색을 위한 리스트
     ArrayList<String> partSpecNameDic;//규격명 검색을 위한 리스트
@@ -58,7 +58,7 @@ public class ProductInOutActivity extends BaseActivity {
             public void onClick(View v) {
 
 
-                new MaterialAlertDialogBuilder(ProductInOutActivity.this)
+                new MaterialAlertDialogBuilder(MinapActivity.this)
                         .setTitle("품명을 선택하세요")
                         .setSingleChoiceItems(partNameSequences, selectedIndex, new DialogInterface.OnClickListener() {
                             @Override
@@ -144,7 +144,7 @@ public class ProductInOutActivity extends BaseActivity {
                     if (!child.getString("ErrorCheck").equals("null")) {//문제가 있을 시, 에러 메시지 호출 후 종료
                         ErrorCheck = child.getString("ErrorCheck");
                         //Toast.makeText(getBaseContext(), ErrorCheck, Toast.LENGTH_SHORT).show();
-                        showErrorDialog(ProductInOutActivity.this, ErrorCheck, 2);
+                        showErrorDialog(MinapActivity.this, ErrorCheck, 2);
                         return;
                     }
                     stock = new Stock();
@@ -175,7 +175,7 @@ public class ProductInOutActivity extends BaseActivity {
 
 
                 productInOutAdapter = new ProductInOutAdapter
-                        (ProductInOutActivity.this, R.layout.listview_product_in_out_row, stockArrayList);
+                        (MinapActivity.this, R.layout.listview_product_in_out_row, stockArrayList);
                 listview.setAdapter(productInOutAdapter);
 
             } catch (Exception e) {

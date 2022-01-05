@@ -25,7 +25,7 @@ public class CollectionViewAdapter extends ArrayAdapter<CollectionData> implemen
     ArrayList data;
 
     TextView txtSaleYYMM;
-    TextView txtLastMonthResultAmt;
+    //TextView txtLastMonthResultAmt;
     TextView txtSaleAmt;
     TextView txtCollectionAmt;
     TextView txtUnCollectionAmt;
@@ -64,21 +64,20 @@ public class CollectionViewAdapter extends ArrayAdapter<CollectionData> implemen
         if (item != null) {
             //row.setTag(item);
             txtSaleYYMM=row.findViewById(R.id.txtSaleYYMM);
-            txtLastMonthResultAmt=row.findViewById(R.id.txtLastMonthResultAmt);
+            //txtLastMonthResultAmt=row.findViewById(R.id.txtLastMonthResultAmt);
             txtSaleAmt=row.findViewById(R.id.txtSaleAmt);
             txtCollectionAmt=row.findViewById(R.id.txtCollectionAmt);
             txtUnCollectionAmt=row.findViewById(R.id.txtUnCollectionAmt);
 
-
             txtSaleYYMM.setText(item.SaleYYMM);
 
             DecimalFormat myFormatter = new DecimalFormat("###,###");
-            String lastMonthResultAmt = myFormatter.format(Double.parseDouble(item.LastMonthResultAmt));
+            //String lastMonthResultAmt = myFormatter.format(Double.parseDouble(item.LastMonthResultAmt));
             String saleAmt = myFormatter.format(Double.parseDouble(item.SaleAmt));
             String collectionAmt = myFormatter.format(Double.parseDouble(item.CollectionAmt));
             String unCollectionAmt = myFormatter.format(Double.parseDouble(item.UnCollectionAmt));
 
-            txtLastMonthResultAmt.setText(lastMonthResultAmt);
+            //txtLastMonthResultAmt.setText(lastMonthResultAmt);
             txtSaleAmt.setText(saleAmt);
             txtCollectionAmt.setText(collectionAmt);
             txtUnCollectionAmt.setText(unCollectionAmt);
@@ -133,8 +132,18 @@ public class CollectionViewAdapter extends ArrayAdapter<CollectionData> implemen
     }
 
     @Override
-    public void progressOFF() {
-        ApplicationClass.getInstance().progressOFF();
+    public void progressON(String message, Handler handler) {
+        ApplicationClass.getInstance().progressON((Activity)context, message, handler);
+    }
+
+    @Override
+    public void progressOFF(String className) {
+        ApplicationClass.getInstance().progressOFF(className);
+    }
+
+    @Override
+    public void progressOFF2(String className) {
+        ApplicationClass.getInstance().progressOFF2(className);
     }
 
     @Override
@@ -148,16 +157,14 @@ public class CollectionViewAdapter extends ArrayAdapter<CollectionData> implemen
     }
 
     private void startProgress() {
-
-        progressON("Loading...");
-
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
-
+        }, 10000);
+        progressON("Loading...", handler);
     }
 }
 

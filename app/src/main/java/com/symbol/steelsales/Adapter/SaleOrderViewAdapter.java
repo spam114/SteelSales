@@ -243,7 +243,7 @@ public class SaleOrderViewAdapter extends ArrayAdapter<SaleOrderView> implements
                 e.printStackTrace();
 
             } finally {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
         }
     }
@@ -264,8 +264,18 @@ public class SaleOrderViewAdapter extends ArrayAdapter<SaleOrderView> implements
     }
 
     @Override
-    public void progressOFF() {
-        ApplicationClass.getInstance().progressOFF();
+    public void progressON(String message, Handler handler) {
+        ApplicationClass.getInstance().progressON((Activity)context, message, handler);
+    }
+
+    @Override
+    public void progressOFF(String className) {
+        ApplicationClass.getInstance().progressOFF(className);
+    }
+
+    @Override
+    public void progressOFF2(String className) {
+        ApplicationClass.getInstance().progressOFF2(className);
     }
 
     @Override
@@ -279,16 +289,14 @@ public class SaleOrderViewAdapter extends ArrayAdapter<SaleOrderView> implements
     }
 
     private void startProgress() {
-
-        progressON("Loading...");
-
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
-
+        }, 10000);
+        progressON("Loading...", handler);
     }
 
 }

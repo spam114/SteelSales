@@ -8,7 +8,9 @@ import android.graphics.drawable.AnimationDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -23,6 +25,7 @@ import com.symbol.steelsales.R;
 public class ApplicationClass extends Application {
     private static ApplicationClass baseApplication;
     AppCompatDialog progressDialog;
+    Handler handler;
 
     public static ApplicationClass getInstance() {
         return baseApplication;
@@ -86,6 +89,36 @@ public class ApplicationClass extends Application {
             progressDialog.setCancelable(false);
             progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
             progressDialog.setContentView(R.layout.progress_loading);
+            Log.i("로딩바ON", activity.getClass().getName());
+            progressDialog.show();
+        }
+        final ImageView img_loading_frame = (ImageView) progressDialog.findViewById(R.id.iv_frame_loading);
+        final AnimationDrawable frameAnimation = (AnimationDrawable) img_loading_frame.getBackground();
+        img_loading_frame.post(new Runnable() {
+            @Override
+            public void run() {
+                frameAnimation.start();
+            }
+        });
+        TextView tv_progress_message = (TextView) progressDialog.findViewById(R.id.tv_progress_message);
+        if (!TextUtils.isEmpty(message)) {
+            tv_progress_message.setText(message);
+        }
+    }
+
+    public void progressON(Activity activity, String message, Handler handler) {
+        if (activity == null || activity.isFinishing()) {
+            return;
+        }
+        this.handler=handler;
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressSET(message);
+        } else {
+            progressDialog = new AppCompatDialog(activity);
+            progressDialog.setCancelable(false);
+            progressDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+            progressDialog.setContentView(R.layout.progress_loading);
+            Log.i("로딩바ON", activity.getClass().getName());
             progressDialog.show();
         }
         final ImageView img_loading_frame = (ImageView) progressDialog.findViewById(R.id.iv_frame_loading);
@@ -132,11 +165,18 @@ public class ApplicationClass extends Application {
         alertBuilder.show();
     }
 
-    public void progressOFF() {
+    public void progressOFF(String className) {
         if (progressDialog != null && progressDialog.isShowing()) {
+            //Log.i("로딩바OFF", className);
             progressDialog.dismiss();
         }
     }
-
+    public void progressOFF2(String className) {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            //Log.i("로딩바OFF", className);
+            progressDialog.dismiss();
+            this.handler.removeCallbacksAndMessages(null);
+        }
+    }
 
 }

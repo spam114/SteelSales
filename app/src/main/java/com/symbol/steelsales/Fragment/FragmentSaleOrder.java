@@ -64,13 +64,14 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
     //ArrayList<StockOutDetail> stockOutDetailArrayList;
     //ArrayList<StockOutDetail> scanDataArrayList;
     private void startProgress() {
-        progressON("Loading...");
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
+        }, 10000);
+        progressON("Loading...", handler);
     }
 
     public void setChangeListData(String searchKeyword) {
@@ -124,13 +125,13 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 /*if(hasFocus){
-                    edtSearch.setGravity(Gravity.START);
+                    edtSearch.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                 }
                 else{
                     edtSearch.setGravity(Gravity.CENTER_HORIZONTAL);
                 }*/
 
-                edtSearch.setGravity(Gravity.START);
+                edtSearch.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
             }
         });
 
@@ -170,7 +171,7 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
         this.listview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                edtSearch.setGravity(Gravity.START);
+                edtSearch.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                 //edtSearch.clearFocus();
                 flayout.requestFocus();
                 HideKeyBoard(context);
@@ -258,7 +259,7 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
                 e.printStackTrace();
 
             } finally {
-                //progressOFF();
+                //progressOFF2();
             }
         }
     }
@@ -310,8 +311,18 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
     }
 
     @Override
-    public void progressOFF() {
-        ApplicationClass.getInstance().progressOFF();
+    public void progressON(String message, Handler handler) {
+        ApplicationClass.getInstance().progressON((Activity)getContext(), message, handler);
+    }
+
+    @Override
+    public void progressOFF(String className) {
+        ApplicationClass.getInstance().progressOFF(className);
+    }
+
+    @Override
+    public void progressOFF2(String className) {
+        ApplicationClass.getInstance().progressOFF2(className);
     }
 
     @Override
@@ -373,7 +384,7 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
-                //progressOFF();
+                //progressOFF2();
             }
 
 

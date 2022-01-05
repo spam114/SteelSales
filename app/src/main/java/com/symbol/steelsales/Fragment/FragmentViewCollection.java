@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -16,9 +15,12 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,12 +29,10 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.symbol.steelsales.Adapter.CustomerCollectionAdapter;
-import com.symbol.steelsales.Adapter.CustomerLocationAdapter;
 import com.symbol.steelsales.Application.ApplicationClass;
 import com.symbol.steelsales.HangulUtils;
 import com.symbol.steelsales.Interface.BaseActivityInterface;
 import com.symbol.steelsales.Object.CollectionData;
-import com.symbol.steelsales.Object.Location;
 import com.symbol.steelsales.Object.Users;
 import com.symbol.steelsales.R;
 import com.symbol.steelsales.RequestHttpURLConnection;
@@ -40,7 +40,10 @@ import com.symbol.steelsales.RequestHttpURLConnection;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class FragmentViewCollection extends Fragment implements BaseActivityInterface {
     Context context;
@@ -49,16 +52,22 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
     ArrayList<CollectionData> collectionDataArrayList;
     CustomerCollectionAdapter customerCollectionAdapter;
     LinearLayout flayout;
-
+    Spinner spinnerDept;
     Button btnViewData;
     Button btnStock;
+    TextView txtTotalAmount;
+
+    public int tyear;
+    public int tmonth;
+    public int tdate;
 
     public FragmentViewCollection() {
 
     }
 
-    public FragmentViewCollection(Context context) {
+    public FragmentViewCollection(Context context, TextView txtTotalAmount) {
         this.context = context;
+        this.txtTotalAmount=txtTotalAmount;
     }
 
     private final int REQUEST_STOCKOUT = 1;
@@ -67,28 +76,29 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
     //ArrayList<StockOutDetail> stockOutDetailArrayList;
     //ArrayList<StockOutDetail> scanDataArrayList;
     private void startProgress() {
-        progressON("Loading...");
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
+        }, 10000);
+        progressON("Loading...", handler);
     }
 
     public void setChangeListData(String searchKeyword) {
-        if(searchKeyword != null) {
+        if (searchKeyword != null) {
             if (searchKeyword.length() == 0) {//검색 데이터 없을시
                 //setLoadListData(oriList);
             } else {
                 ArrayList<CollectionData> temp = new ArrayList<>();
-                for(CollectionData i : collectionDataArrayList) {
+                for (CollectionData i : collectionDataArrayList) {
                     boolean isAdd = false;
                     String iniName = HangulUtils.getHangulInitialSound(i.CustomerName, searchKeyword);
                     if (iniName.indexOf(searchKeyword) >= 0) {
                         isAdd = true;
                     }
-                    if(isAdd) {
+                    if (isAdd) {
                         temp.add(i);
                     }
                 }
@@ -102,16 +112,26 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
     private void setSearchData(ArrayList<CollectionData> list) {
         //lay_noData.setVisibility(View.GONE);
         // tv_noSearch.setVisibility(View.GONE);
-        if(list.size() == 0) {
+        if (list.size() == 0) {
 
         } else {
-            //rv.setVisibility(View.VISIBLE);
-            //customerLocationAdapter.swap(list);
+            int position = spinnerDept.getSelectedItemPosition();
+            String deptCode = "-1";
+            for (int i = 0; i < Users.deptArrayList.size(); i++) {
+                if (Users.deptArrayList.get(i).index == position)
+                    deptCode = Users.deptArrayList.get(i).deptCode;
+            }
 
-
-            customerCollectionAdapter= new CustomerCollectionAdapter
-                    (context, R.layout.listview_customercollection_row, list,"미수금현황");
+            customerCollectionAdapter = new CustomerCollectionAdapter
+                    (context, R.layout.listview_customercollection_row, list, "미수금현황", deptCode);
             listview.setAdapter(customerCollectionAdapter);
+            DecimalFormat myFormatter = new DecimalFormat("###,###");
+            double totalAmt=0;
+            for(int i=0;i<list.size();i++){
+                totalAmt+=Double.parseDouble(list.get(i).UnCollectionAmt);
+            }
+            String strTotalAmount = myFormatter.format(totalAmt);
+            txtTotalAmount.setText(strTotalAmount);
         }
     }
 
@@ -122,19 +142,57 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
         this.txtState = rootView.findViewById(R.id.txtState);
         this.edtSearch = rootView.findViewById(R.id.edtSearch);
         flayout = rootView.findViewById(R.id.flayout);
-        getCollectionData();
+
+        final Calendar calendar = Calendar.getInstance();
+        tyear = calendar.get(Calendar.YEAR);
+        tmonth = calendar.get(Calendar.MONTH);
+        tdate = calendar.get(Calendar.DATE);
+
+        this.spinnerDept = rootView.findViewById(R.id.spinnerDept);
+        ArrayList<String> deptArrayList = new ArrayList<>();
+        int index = 0;
+        for (int i = 0; i < Users.deptArrayList.size(); i++) {
+            deptArrayList.add(Users.deptArrayList.get(i).deptName);
+            if (Users.DeptCode.equals(Users.deptArrayList.get(i).deptCode)) {
+                index = Users.deptArrayList.get(i).index;
+            }
+        }
+
+        final ArrayAdapter adapter = new ArrayAdapter<String>(getActivity(),
+                R.layout.spinner_item, deptArrayList);
+
+        spinnerDept.setAdapter(adapter);
+        //spinnerLocation.setMinimumWidth(150);
+        //spinnerLocation.setDropDownWidth(150);
+        spinnerDept.setSelection(index);
+        spinnerDept.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (view == null){
+                    if(position==0){
+                        getCollectionData();
+                    }
+                    return;
+                }
+                getCollectionData();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
 
         this.edtSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 /*if(hasFocus){
-                    edtSearch.setGravity(Gravity.START);
+                    edtSearch.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                 }
                 else{
                     edtSearch.setGravity(Gravity.CENTER_HORIZONTAL);
                 }*/
-
-                edtSearch.setGravity(Gravity.START);
+                edtSearch.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
             }
         });
 
@@ -146,9 +204,11 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //getCustomerLocationBySearch();
-                if(s.toString().equals(""))
+                if (start == 0 && before == 0 && count == 0)
+                    return;
+                if (s.toString().equals("")) {
                     getCollectionData();
+                }
                 setChangeListData(s.toString());
             }
 
@@ -162,7 +222,7 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
-                if(actionId == EditorInfo.IME_ACTION_DONE){ // IME_ACTION_SEARCH , IME_ACTION_GO
+                if (actionId == EditorInfo.IME_ACTION_DONE) { // IME_ACTION_SEARCH , IME_ACTION_GO
                     //getCustomerLocation();
                 }
                 return false;
@@ -170,11 +230,11 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
         });
 
 
-        this.listview=rootView.findViewById(R.id.listview);
+        this.listview = rootView.findViewById(R.id.listview);
         this.listview.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                edtSearch.setGravity(Gravity.START);
+                edtSearch.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                 //edtSearch.clearFocus();
                 flayout.requestFocus();
                 HideKeyBoard(context);
@@ -189,16 +249,32 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }*/
-        getCollectionData();
+        // getCollectionData();
 
         return rootView;
     }
 
 
     public void getCollectionData() {
+        this.txtTotalAmount.setText("");
+        collectionDataArrayList = new ArrayList<>();
+
+        int position = spinnerDept.getSelectedItemPosition();
+        String deptCode = "-1";
+        for (int i = 0; i < Users.deptArrayList.size(); i++) {
+            if (Users.deptArrayList.get(i).index == position)
+                deptCode = Users.deptArrayList.get(i).deptCode;
+        }
+
+        customerCollectionAdapter = new CustomerCollectionAdapter
+                (context, R.layout.listview_customercollection_row, collectionDataArrayList, "미수금현황", deptCode);
+        customerCollectionAdapter.notifyDataSetChanged();
+        listview.setAdapter(customerCollectionAdapter);
         String url = getString(R.string.service_address) + "getCollectionData";
         ContentValues values = new ContentValues();
         values.put("BusinessClassCode", 2);
+        values.put("DeptCode", deptCode);
+
         GetCollectionData gsod = new GetCollectionData(url, values);
         gsod.execute();
     }
@@ -215,7 +291,7 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            Log.i("순서확인", "미수금현황시작");
+            //Log.i("순서확인", "미수금현황시작");
             startProgress();
             //progress bar를 보여주는 등등의 행위
         }
@@ -233,34 +309,45 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
             // 통신이 완료되면 호출됩니다.
             // 결과에 따른 UI 수정 등은 여기서 합니다
             try {
+                DecimalFormat myFormatter = new DecimalFormat("###,###");
                 CollectionData collectionData;
                 JSONArray jsonArray = new JSONArray(result);
                 String ErrorCheck = "";
-                 collectionDataArrayList= new ArrayList<>();
+                collectionDataArrayList = new ArrayList<>();
+
+                int position = spinnerDept.getSelectedItemPosition();
+                String deptCode = "-1";
+                for (int i = 0; i < Users.deptArrayList.size(); i++) {
+                    if (Users.deptArrayList.get(i).index == position)
+                        deptCode = Users.deptArrayList.get(i).deptCode;
+                }
+                double totalAmt=0;
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject child = jsonArray.getJSONObject(i);
                     if (!child.getString("ErrorCheck").equals("null")) {//문제가 있을 시, 에러 메시지 호출 후 종료
                         ErrorCheck = child.getString("ErrorCheck");
                         //Toast.makeText(getBaseContext(), ErrorCheck, Toast.LENGTH_SHORT).show();
-                        showErrorDialog(context, ErrorCheck,2);
+                        showErrorDialog(context, ErrorCheck, 2);
                         return;
                     }
                     collectionData = new CollectionData();
-                    collectionData.CustomerCode=child.getString("CustomerCode");
-                    collectionData.CustomerName=child.getString("CustomerName");
-                    collectionData.UnCollectionAmt=child.getString("UnCollectionAmt");
+                    collectionData.CustomerCode = child.getString("CustomerCode");
+                    collectionData.CustomerName = child.getString("CustomerName");
+                    collectionData.UnCollectionAmt = child.getString("UnCollectionAmt");
+                    totalAmt+=Double.parseDouble(collectionData.UnCollectionAmt);
                     collectionDataArrayList.add(collectionData);
                 }
-                customerCollectionAdapter= new CustomerCollectionAdapter
-                        (context, R.layout.listview_customercollection_row, collectionDataArrayList,"미수금현황");
+                customerCollectionAdapter = new CustomerCollectionAdapter
+                        (context, R.layout.listview_customercollection_row, collectionDataArrayList, "미수금현황", deptCode);
                 listview.setAdapter(customerCollectionAdapter);
-
+                String strTotalAmount = myFormatter.format(totalAmt);
+                txtTotalAmount.setText(strTotalAmount);
             } catch (Exception e) {
                 e.printStackTrace();
 
             } finally {
-                Log.i("순서확인", "미수금현황종료");
-                progressOFF();
+                //Log.i("순서확인", "미수금현황종료");
+                progressOFF2(this.getClass().getName());
             }
         }
     }
@@ -312,8 +399,19 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
     }
 
     @Override
-    public void progressOFF() {
-        ApplicationClass.getInstance().progressOFF();
+    public void progressON(String message, Handler handler) {
+        ApplicationClass.getInstance().progressON((Activity) context, message, handler);
+    }
+
+    @Override
+    public void progressOFF(String className) {
+        ApplicationClass.getInstance().progressOFF(className);
+    }
+
+
+    @Override
+    public void progressOFF2(String className) {
+        ApplicationClass.getInstance().progressOFF2(className);
     }
 
     @Override
@@ -323,7 +421,7 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
 
     @Override
     public void HideKeyBoard(Context context) {
-        ApplicationClass.getInstance().HideKeyBoard((Activity)context);
+        ApplicationClass.getInstance().HideKeyBoard((Activity) context);
     }
 }
 

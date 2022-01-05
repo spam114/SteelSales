@@ -184,7 +184,7 @@ public class SearchByKeyinDialog extends DialogFragment implements BaseActivityI
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
         }, 3500);
 
@@ -206,8 +206,18 @@ public class SearchByKeyinDialog extends DialogFragment implements BaseActivityI
     }
 
     @Override
-    public void progressOFF() {
-        ApplicationClass.getInstance().progressOFF();
+    public void progressON(String message, Handler handler) {
+        ApplicationClass.getInstance().progressON((Activity)getContext(), message, handler);
+    }
+
+    @Override
+    public void progressOFF(String className) {
+        ApplicationClass.getInstance().progressOFF(className);
+    }
+
+    @Override
+    public void progressOFF2(String className) {
+        ApplicationClass.getInstance().progressOFF2(className);
     }
 
     @Override
@@ -287,7 +297,7 @@ public class SearchByKeyinDialog extends DialogFragment implements BaseActivityI
                 e.printStackTrace();
 
             } finally {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
         }
     }

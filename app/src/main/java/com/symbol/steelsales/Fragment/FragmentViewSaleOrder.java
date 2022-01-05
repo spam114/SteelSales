@@ -67,13 +67,14 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
     //ArrayList<StockOutDetail> stockOutDetailArrayList;
     //ArrayList<StockOutDetail> scanDataArrayList;
     private void startProgress() {
-        progressON("Loading...");
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
+        }, 10000);
+        progressON("Loading...", handler);
     }
 
     @Nullable
@@ -119,7 +120,13 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
 
                 /*String locationNo = locationMap.get(position).LocationNo;
                 getCoilStock(locationNo, "");*/
-
+                if(view==null){
+                    if(position==0){
+                        String fromDate=tyear+"-"+(tmonth+1)+"-"+tdate;
+                        getViewSaleOrderData(fromDate);
+                    }
+                    return;
+                }
                 String fromDate=tyear+"-"+(tmonth+1)+"-"+tdate;
                 getViewSaleOrderData(fromDate);
             }
@@ -197,6 +204,7 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            startProgress();
             //progress bar를 보여주는 등등의 행위
         }
 
@@ -265,7 +273,7 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
                 e.printStackTrace();
 
             } finally {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
         }
     }
@@ -317,8 +325,18 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
     }
 
     @Override
-    public void progressOFF() {
-        ApplicationClass.getInstance().progressOFF();
+    public void progressON(String message, Handler handler) {
+        ApplicationClass.getInstance().progressON((Activity) getContext(), message, handler);
+    }
+
+    @Override
+    public void progressOFF(String className) {
+        ApplicationClass.getInstance().progressOFF(className);
+    }
+
+    @Override
+    public void progressOFF2(String className) {
+        ApplicationClass.getInstance().progressOFF2(className);
     }
 
     @Override

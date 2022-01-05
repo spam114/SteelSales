@@ -484,7 +484,7 @@ public class SplashScreenActivity extends BaseActivity {
                 }
 
             } catch (Exception e) {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
 
             } finally {
             }
@@ -547,19 +547,29 @@ public class SplashScreenActivity extends BaseActivity {
                     location.CustomerName = child.getString("CustomerName");
                     Users.locationArrayList.add(location);
                 }
+                Dept aDept= new Dept();
+                aDept.deptCode="-1";
+                aDept.deptName="전체";
+                aDept.index=0;
                 Dept sDept= new Dept();
                 sDept.deptCode="14100";
                 sDept.deptName="서울철강영업팀";
-                sDept.index=0;
+                sDept.index=1;
                 Dept pDept= new Dept();
                 pDept.deptCode="14200";
                 pDept.deptName="부산철강영업팀";
-                pDept.index=1;
+                pDept.index=2;
+                Dept fDept= new Dept();
+                fDept.deptCode="14500";
+                fDept.deptName="해외철강영업파트";
+                fDept.index=3;
                 Users.deptArrayList= new ArrayList<>();
+                Users.deptArrayList.add(aDept);
                 Users.deptArrayList.add(sDept);
                 Users.deptArrayList.add(pDept);
+                Users.deptArrayList.add(fDept);
 
-                progressOFF();
+                progressOFF2(this.getClass().getName());
                 Intent intent = new Intent(SplashScreenActivity.this, MainActivity2.class);
                 startActivity(intent);
 
@@ -634,15 +644,13 @@ public class SplashScreenActivity extends BaseActivity {
     }
 
     private void startProgress() {
-
-        progressON("Loading...");
-
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
-
+        }, 10000);
+        progressON("Loading...", handler);
     }
 }

@@ -255,19 +255,20 @@ public class SearchAvailablePartActivity extends BaseActivity {
                 e.printStackTrace();
 
             } finally {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
         }
     }
 
     private void startProgress() {
-        progressON("Loading...");
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
+        }, 10000);
+        progressON("Loading...", handler);
     }
 
     ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(

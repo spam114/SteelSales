@@ -95,8 +95,18 @@ public class CustomerLocationAdapter extends ArrayAdapter<Location> implements B
     }
 
     @Override
-    public void progressOFF() {
-        ApplicationClass.getInstance().progressOFF();
+    public void progressON(String message, Handler handler) {
+        ApplicationClass.getInstance().progressON((Activity)context, message, handler);
+    }
+
+    @Override
+    public void progressOFF(String className) {
+        ApplicationClass.getInstance().progressOFF(className);
+    }
+
+    @Override
+    public void progressOFF2(String className) {
+        ApplicationClass.getInstance().progressOFF2(className);
     }
 
     @Override
@@ -110,16 +120,14 @@ public class CustomerLocationAdapter extends ArrayAdapter<Location> implements B
     }
 
     private void startProgress() {
-
-        progressON("Loading...");
-
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
-
+        }, 10000);
+        progressON("Loading...", handler);
     }
 
 }

@@ -31,7 +31,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="12dp"
                 android:layout_marginBottom="12dp"
-                android:text="미납/재고"
+                android:text="가용재고"
                 android:textColor="#000000"
                 android:textSize="15sp" />
 
@@ -60,90 +60,43 @@
             android:orientation="horizontal"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:weightSum="8">
+            android:weightSum="15">
 
             <TextView
                 android:id="@+id/txtPartName"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="2.6"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:layout_weight="5.5"
                 android:gravity="center"
-                android:text="품명/규격"
+                android:text="품명"
                 android:textColor="#FFFFFF"
                 android:textSize="14sp" />
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/txtCoil4"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1.8"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:layout_weight="5.5"
                 android:gravity="center"
-                android:orientation="vertical">
+                android:text="규격"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
 
-                <TextView
-                    android:id="@+id/txtQty0"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="4"
-                    android:gravity="center"
-                    android:text="출고(서울)"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/txtQty1"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="4"
-                    android:gravity="center"
-                    android:text="출고(부산)"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
+            <TextView
+                android:id="@+id/txtQty"
                 android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1.8"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/txtQty2"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="4"
-                    android:gravity="center"
-                    android:text="미납(서울)"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp" />
-
-                <TextView
-                    android:id="@+id/txtQty3"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="4"
-                    android:gravity="center"
-                    android:text="미납(부산)"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1.8"
-                android:orientation="vertical">
-
-                <TextView
-                    android:id="@+id/txtQty5"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_weight="4"
-                    android:gravity="center"
-                    android:text="가용재고"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp" />
-
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:layout_marginBottom="2dp"
+                android:layout_weight="4"
+                android:gravity="center"
+                android:text="가용재고(EA)"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
 
         </LinearLayout>
 

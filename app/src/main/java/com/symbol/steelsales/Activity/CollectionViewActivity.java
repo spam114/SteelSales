@@ -1,50 +1,52 @@
 package com.symbol.steelsales.Activity;
 
-import android.app.Activity;
 import android.content.ContentValues;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-
-import com.symbol.steelsales.Adapter.AvailablePartAdapter;
 import com.symbol.steelsales.Adapter.CollectionViewAdapter;
 import com.symbol.steelsales.Object.CollectionData;
-import com.symbol.steelsales.Object.Stock;
 import com.symbol.steelsales.R;
 import com.symbol.steelsales.RequestHttpURLConnection;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 //가용재고가 표기되는 품목선택 액티비티
 public class CollectionViewActivity extends BaseActivity {
     String customerCode;
     String customerName;
+    String deptCode;
     ArrayList<CollectionData> collectionDataArrayList;
     //CharSequence[] partSpecNameSequences;
     CollectionViewAdapter collectionViewAdapter;
     ListView listview;
     TextView txtContent;
     int selectedIndex = 0;
+    TextView txtLastMonthResultAmt;
+    TextView txtSaleAmt;
+    TextView txtCollectionAmt;
+    TextView txtUncollectionAmt;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_collection_view);
         customerCode = getIntent().getStringExtra("customerCode");
         customerName = getIntent().getStringExtra("customerName");
+        deptCode = getIntent().getStringExtra("deptCode");
         listview = findViewById(R.id.listview);
         txtContent = findViewById(R.id.txtContent);
-        txtContent.setText("미수금현황 [" + customerName+"]");
+        txtContent.setText("원대장 [" + customerName+"]");
+        this.txtLastMonthResultAmt=findViewById(R.id.txtLastMonthResultAmt);
+        this.txtSaleAmt=findViewById(R.id.txtSaleAmt);
+        this.txtCollectionAmt=findViewById(R.id.txtCollectionAmt);
+        this.txtUncollectionAmt=findViewById(R.id.txtUncollectionAmt);
         getCollectionDataByCustomerCode();
 
     }
@@ -54,6 +56,7 @@ public class CollectionViewActivity extends BaseActivity {
         ContentValues values = new ContentValues();
         values.put("BusinessClassCode", 2);
         values.put("CustomerCode", customerCode);
+        values.put("DeptCode", deptCode);
         GetCollectionDataByCustomerCode gsod = new GetCollectionDataByCustomerCode(url, values);
         gsod.execute();
     }
@@ -90,6 +93,7 @@ public class CollectionViewActivity extends BaseActivity {
                 CollectionData collectionData;
                 JSONArray jsonArray = new JSONArray(result);
                 String ErrorCheck = "";
+                DecimalFormat myFormatter = new DecimalFormat("###,###");
                 collectionDataArrayList = new ArrayList<>();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject child = jsonArray.getJSONObject(i);
@@ -104,10 +108,20 @@ public class CollectionViewActivity extends BaseActivity {
                     collectionData.SaleAmt = child.getString("SaleAmt");
                     collectionData.CollectionAmt = child.getString("CollectionAmt");
                     collectionData.UnCollectionAmt = child.getString("UnCollectionAmt");
-                    collectionData.CustomerCode = child.getString("CustomerCode");
-                    collectionData.CustomerName = child.getString("CustomerName");
+                    //collectionData.CustomerCode = child.getString("CustomerCode");
+                    //collectionData.CustomerName = child.getString("CustomerName");
                     collectionData.SaleYYMM = child.getString("SaleYYMM");
-                    collectionDataArrayList.add(collectionData);
+
+                    if(!collectionData.SaleYYMM.equals("계")){
+                        collectionDataArrayList.add(collectionData);
+                    }
+                    else{//합계
+                        txtLastMonthResultAmt.setText(myFormatter.format(Double.parseDouble(collectionData.LastMonthResultAmt)));
+                        txtSaleAmt.setText(myFormatter.format(Double.parseDouble(collectionData.SaleAmt)));
+                        txtCollectionAmt.setText(myFormatter.format(Double.parseDouble(collectionData.CollectionAmt)));
+                        txtUncollectionAmt.setText(myFormatter.format(Double.parseDouble(collectionData.UnCollectionAmt)));
+
+                    }
                 }
 
                 collectionViewAdapter = new CollectionViewAdapter
@@ -118,19 +132,20 @@ public class CollectionViewActivity extends BaseActivity {
                 e.printStackTrace();
 
             } finally {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
         }
     }
 
     private void startProgress() {
-        progressON("Loading...");
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
+        }, 10000);
+        progressON("Loading...", handler);
     }
 
  /*   ActivityResultLauncher<Intent> startActivityResult = registerForActivityResult(

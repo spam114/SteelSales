@@ -17,6 +17,7 @@ import com.symbol.steelsales.Interface.BaseActivityInterface;
 import com.symbol.steelsales.Object.CollectionData;
 import com.symbol.steelsales.R;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -26,14 +27,16 @@ public class CustomerCollectionAdapter extends ArrayAdapter<CollectionData> impl
     int layoutRsourceId;
     ArrayList data;
     String type = "";
+    String deptCode="";
 
 
-    public CustomerCollectionAdapter(Context context, int layoutResourceID, ArrayList data, String type) {
+    public CustomerCollectionAdapter(Context context, int layoutResourceID, ArrayList data, String type, String deptCode) {
         super(context, layoutResourceID, data);
         this.context = context;
         this.layoutRsourceId = layoutResourceID;
         this.data = data;
         this.type = type;
+        this.deptCode=deptCode;
     }
 
     @Override
@@ -63,6 +66,7 @@ public class CustomerCollectionAdapter extends ArrayAdapter<CollectionData> impl
             Intent i = new Intent(getContext(), CollectionViewActivity.class);
             i.putExtra("customerCode", item.CustomerCode);
             i.putExtra("customerName", item.CustomerName);
+            i.putExtra("deptCode", deptCode);
             row.setOnClickListener(v -> {
                 context.startActivity(i);
             });
@@ -86,8 +90,18 @@ public class CustomerCollectionAdapter extends ArrayAdapter<CollectionData> impl
     }
 
     @Override
-    public void progressOFF() {
-        ApplicationClass.getInstance().progressOFF();
+    public void progressON(String message, Handler handler) {
+        ApplicationClass.getInstance().progressON((Activity)context, message, handler);
+    }
+
+    @Override
+    public void progressOFF(String className) {
+        ApplicationClass.getInstance().progressOFF(className);
+    }
+
+    @Override
+    public void progressOFF2(String className) {
+        ApplicationClass.getInstance().progressOFF2(className);
     }
 
     @Override
@@ -101,16 +115,14 @@ public class CustomerCollectionAdapter extends ArrayAdapter<CollectionData> impl
     }
 
     private void startProgress() {
-
-        progressON("Loading...");
-
-        new Handler().postDelayed(new Runnable() {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                progressOFF();
+                progressOFF2(this.getClass().getName());
             }
-        }, 3500);
-
+        }, 10000);
+        progressON("Loading...", handler);
     }
 
 }
