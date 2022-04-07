@@ -3,9 +3,9 @@
 
     <!--4445 테스트-->
     <!--<string name="service_address">http://211.245.239.53:4445/Service/json/</string>
-    <string name="product_dbname">ERP_EonYang</string>
+    <string name="product_dbname">ERP_EonYang_Test</string>
     <string name="KMURL">Default</string>
-    <string name="SDBN">Erp_EonYang</string>-->
+    <string name="SDBN">Erp_EonYang_TEST</string>-->
 
     <!--4446 테스트 최인규-->
     <!--<string name="service_address">http://211.245.239.53:4446/Service/json/</string>

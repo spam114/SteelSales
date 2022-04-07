@@ -32,6 +32,7 @@ import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.tabs.TabLayout;
+import com.symbol.steelsales.Activity.MinapActivity;
 import com.symbol.steelsales.Activity.ProductInOutActivity;
 import com.symbol.steelsales.Activity.SearchAvailablePartActivity;
 import com.symbol.steelsales.Application.ApplicationClass;
@@ -343,7 +344,7 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                 }
 
                 else if (position == 4) {
-                    Intent intent = new Intent(MainActivity2.this, ProductInOutActivity.class);
+                    Intent intent = new Intent(MainActivity2.this, MinapActivity.class);
                     startActivity(intent);
                 }
             }
@@ -379,7 +380,7 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                     startActivity(intent);
                 }
                 else if (position == 4) {
-                    Intent intent = new Intent(MainActivity2.this, ProductInOutActivity.class);
+                    Intent intent = new Intent(MainActivity2.this, MinapActivity.class);
                     startActivity(intent);
                 }
             }

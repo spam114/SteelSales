@@ -144,8 +144,10 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 //getCustomerLocationBySearch();
-                if(s.toString().equals(""))
-                    getCustomerLocation(false);
+                if(s.toString().equals("")){
+                    if(start!=0 && before !=0 && count!=0)
+                        getCustomerLocation(false);
+                }
                 setChangeListData(s.toString());
             }
 
@@ -214,8 +216,8 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            //if(initStart)
-                //startProgress();
+            if(initStart)
+                startProgress();
             //progress bar를 보여주는 등등의 행위
         }
 
@@ -259,7 +261,8 @@ public class FragmentSaleOrder extends Fragment implements BaseActivityInterface
                 e.printStackTrace();
 
             } finally {
-                //progressOFF2();
+                if(initStart)
+                    progressOFF2("");
             }
         }
     }

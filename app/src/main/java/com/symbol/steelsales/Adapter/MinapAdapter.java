@@ -2,6 +2,8 @@ package com.symbol.steelsales.Adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.graphics.Color;
 import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,32 +13,33 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.symbol.steelsales.Application.ApplicationClass;
 import com.symbol.steelsales.Interface.BaseActivityInterface;
+import com.symbol.steelsales.Object.Minap;
 import com.symbol.steelsales.Object.Stock;
 import com.symbol.steelsales.R;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
-//가용재고가 표기되는 품목선택 리스트뷰를 구성할때 사용하는 어뎁터
-public class ProductInOutAdapter extends ArrayAdapter<Stock> implements BaseActivityInterface, Filterable {
+public class MinapAdapter extends ArrayAdapter<Minap> implements BaseActivityInterface, Filterable {
 
     Context context;
     int layoutRsourceId;
     ArrayList data;
 
     TextView txtPart;
-    TextView txtPartSpec;
-    TextView txtQty;
+    TextView txtMinapQty;
+    TextView txtMinapWeight;
 
     // Adapter에 추가된 데이터를 저장하기 위한 ArrayList. (원본 데이터 리스트)
-    private ArrayList<Stock> listViewItemList = new ArrayList<Stock>();
+    private ArrayList<Minap> listViewItemList = new ArrayList<Minap>();
     // 필터링된 결과 데이터를 저장하기 위한 ArrayList. 최초에는 전체 리스트 보유.
-    private ArrayList<Stock> filteredItemList;
+    private ArrayList<Minap> filteredItemList;
     Filter listFilter;
 
-    public ProductInOutAdapter(Context context, int layoutResourceID, ArrayList data) {
+    public MinapAdapter(Context context, int layoutResourceID, ArrayList data) {
         super(context, layoutResourceID, data);
         this.context = context;
         this.data = data;
@@ -56,48 +59,60 @@ public class ProductInOutAdapter extends ArrayAdapter<Stock> implements BaseActi
             row = inflater.inflate(layoutRsourceId, null);
         }
 
-        final Stock item = (Stock) filteredItemList.get(position);
+        final Minap item = (Minap) filteredItemList.get(position);
         if (item != null) {
             //row.setTag(item);
             txtPart = row.findViewById(R.id.txtPart);
-            txtPartSpec = row.findViewById(R.id.txtPartSpec);
-            txtQty = row.findViewById(R.id.txtQty);
-
+            txtMinapQty = row.findViewById(R.id.txtMinapQty);
+            txtMinapWeight = row.findViewById(R.id.txtMinapWeight);
             DecimalFormat myFormatter = new DecimalFormat("###,###");
+            String strQty = myFormatter.format(Double.parseDouble(item.NotDeliveryQty));
+            String strWeight = myFormatter.format(Double.parseDouble(item.NotDeliveryWeight));
 
-            String strQty = myFormatter.format(Double.parseDouble(item.Qty));
+            txtPart.setText(item.PartName + "(" + item.PartSpecName + ")");
+            txtMinapQty.setText(strQty);
+            txtMinapWeight.setText(strWeight);
 
-            txtPart.setText(item.PartName);
-            txtPartSpec.setText(item.PartSpecName);
-            txtQty.setText(strQty);
-
-
-            /*row.setOnClickListener(new View.OnClickListener() {
+            row.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v) {
-                    if(checkBox.isChecked()) {
-                        checkBox.setChecked(false);
-                        checkedQty--;
-                    }
-                    else {
-                        checkBox.setChecked(true);
-                        checkedQty++;
-                    }
+                public void onClick(View view) {
+                    new MaterialAlertDialogBuilder(getContext())
+                            .setTitle("세부항목")
+                            .setMessage("거래처: " + item.CustomerName + "\n" +
+                                    "주문번호: " + item.SaleOrderNo + "\n" +
+                                    "품명: " + item.PartName + "\n" +
+                                    "규격: " + item.PartSpecName + "\n" +
+                                    "미납수량: " + strQty+" EA" + "\n" +
+                                    "미납중량: " + strWeight +" KG"+ "\n" +
+                                    "비고1: " + item.Remark1
+                            )
+                            .setCancelable(true)
+                            .setPositiveButton
+                                    ("확인", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
 
-                    //txtBadge.setText(Integer.toString(checkedQty));
-                    //boolean newState=!item.checked;
-                    //item.checked=newState;
+                                        }
+                                    }).show();
                 }
             });
 
-            checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    boolean newState=!item.checked;
-                    item.checked=newState;
-                }
-            });
-            checkBox.setChecked(item.checked);*/
+            if (item.SaleOrderNo.equals("소계")) {
+                row.setClickable(false);
+                row.setBackgroundColor(Color.parseColor("#FFF0F8FF"));
+                txtPart.setText(item.CustomerName + " 소계");
+            } else {
+                row.setClickable(true);
+                row.setBackgroundColor(Color.TRANSPARENT);
+            }
+
+            if (item.SaleOrderNo.equals("명칭")) {
+                row.setClickable(false);
+                txtPart.setText(item.CustomerName);
+                txtMinapQty.setText("");
+                txtMinapWeight.setText("");
+            }
+
         }
         return row;
     }
@@ -108,7 +123,7 @@ public class ProductInOutAdapter extends ArrayAdapter<Stock> implements BaseActi
     }
 
     @Override
-    public Stock getItem(int position) {
+    public Minap getItem(int position) {
         return filteredItemList.get(position);
     }
 
@@ -189,9 +204,9 @@ public class ProductInOutAdapter extends ArrayAdapter<Stock> implements BaseActi
                 results.values = listViewItemList;
                 results.count = listViewItemList.size();
             } else {
-                ArrayList<Stock> itemList = new ArrayList<Stock>();
+                ArrayList<Minap> itemList = new ArrayList<Minap>();
 
-                for (Stock item : listViewItemList) {
+                for (Minap item : listViewItemList) {
                     if (constraint.toString().equals("전체")) {
                         itemList.add(item);
                     } else {
@@ -213,7 +228,7 @@ public class ProductInOutAdapter extends ArrayAdapter<Stock> implements BaseActi
         protected void publishResults(CharSequence constraint, FilterResults results) {
 
             // update listview by filtered data list.
-            filteredItemList = (ArrayList<Stock>) results.values;
+            filteredItemList = (ArrayList<Minap>) results.values;
 
             // notify
             if (results.count > 0) {
@@ -225,4 +240,3 @@ public class ProductInOutAdapter extends ArrayAdapter<Stock> implements BaseActi
     }
 
 }
-

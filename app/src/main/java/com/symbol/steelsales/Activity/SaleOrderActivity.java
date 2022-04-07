@@ -1,7 +1,6 @@
 package com.symbol.steelsales.Activity;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -25,10 +24,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.textfield.TextInputEditText;
 import com.symbol.steelsales.Adapter.SaleOrderAdapter;
 import com.symbol.steelsales.BackPressControl;
-import com.symbol.steelsales.BackPressEditText;
 import com.symbol.steelsales.Dialog.SearchAvailablePartDialog;
 import com.symbol.steelsales.Dialog.SearchByKeyinDialog;
-import com.symbol.steelsales.Fragment.FragmentViewSaleOrder;
 import com.symbol.steelsales.Object.SaleOrder;
 import com.symbol.steelsales.Object.Users;
 import com.symbol.steelsales.R;
@@ -88,7 +85,7 @@ public class SaleOrderActivity extends BaseActivity {
         btnSave = findViewById(R.id.btnSave);
         btnConfirm = findViewById(R.id.btnConfirm);
         imvRefresh = findViewById(R.id.imvRefresh);
-        layoutTop=findViewById(R.id.layoutTop);
+        layoutTop = findViewById(R.id.layoutTop);
         if (saleOrderNo.equals("")) {
             fixDivision = "N";
             btnConfirm.setEnabled(false);
@@ -195,15 +192,15 @@ public class SaleOrderActivity extends BaseActivity {
     private void confirmOrCancelSaleOrder() {
         String cString = "";
         String cTitle = "";
-        String cType="";
+        String cType = "";
         if (fixDivision.equals("Y")) {//확정취소를 한다.
             cTitle = "주문서 확정취소";
             cString = "확정 취소시겠습니까";
-            cType="취소";
+            cType = "취소";
         } else {//확정을 한다.
             cTitle = "주문서 확정";
             cString = "확정하시겠습니까?";
-            cType="확정";
+            cType = "확정";
         }
         String finalCType = cType;
         new MaterialAlertDialogBuilder(SaleOrderActivity.this)
@@ -215,10 +212,9 @@ public class SaleOrderActivity extends BaseActivity {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
 
-                                if(finalCType.equals("취소")){
+                                if (finalCType.equals("취소")) {
                                     cancelSaleOrder();
-                                }
-                                else{//확정: 확정전에, SaveSalesOrderData 먼저 한후-> confirmSaleOrder
+                                } else {//확정: 확정전에, SaveSalesOrderData 먼저 한후-> confirmSaleOrder
                                     SaveSalesOrderData(true);
                                 }
 
@@ -231,9 +227,7 @@ public class SaleOrderActivity extends BaseActivity {
                 if (fixDivision.equals("N")) {
                     toggleOrder.uncheck(R.id.btnConfirm);
                     btnConfirm.setText("확정");
-                }
-
-                else {
+                } else {
                     toggleOrder.check(R.id.btnConfirm);
                     btnConfirm.setText("확정취소");
                 }
@@ -300,13 +294,12 @@ public class SaleOrderActivity extends BaseActivity {
                     if (!child.getString("ErrorCheck").equals("null")) {//문제가 있을 시, 에러 메시지 호출 후 종료
                         ErrorCheck = child.getString("ErrorCheck");
 
-                        if(child.getString("FixDivision").equals("N")){//"이미 취소된 전표 처리입니다" 에러시 버튼 처리
+                        if (child.getString("FixDivision").equals("N")) {//"이미 취소된 전표 처리입니다" 에러시 버튼 처리
                             toggleOrder.uncheck(R.id.btnConfirm);
                             btnConfirm.setText("확정");
                             btnSave.setEnabled(true);
                             setEnableFalseOrTrueEditText(true);
-                        }
-                        else{
+                        } else {
                             toggleOrder.check(R.id.btnConfirm);
                             btnConfirm.setText("확정취소");
                             btnSave.setEnabled(false);
@@ -367,7 +360,7 @@ public class SaleOrderActivity extends BaseActivity {
         imvRefresh.setEnabled(state);
         for (int i = 0; i < listview.getCount(); i++) {
             try {
-                SaleOrder soa =  (SaleOrder) listview.getItemAtPosition(i);
+                SaleOrder soa = (SaleOrder) listview.getItemAtPosition(i);
                 soa.isEnabled = state;
             } catch (Exception ete) {
                 Toast.makeText(SaleOrderActivity.this, ete.getMessage(), Toast.LENGTH_SHORT).show();
@@ -384,9 +377,9 @@ public class SaleOrderActivity extends BaseActivity {
                     setEnable(viewGroup.getChildAt(i), tOrf);
                 }
             }
-            String test="";
-            test=view.getClass().getName();
-            if(test.equals("com.symbol.steelsales.BackPressEditText"))
+            String test = "";
+            test = view.getClass().getName();
+            if (test.equals("com.symbol.steelsales.BackPressEditText"))
                 view.setEnabled(tOrf);
         }
     }
@@ -438,7 +431,7 @@ public class SaleOrderActivity extends BaseActivity {
             this.url = url;
             this.values = values;
             this.list = list;
-            this.confirmFlag=confirmFlag;
+            this.confirmFlag = confirmFlag;
         }
 
         @Override
@@ -492,7 +485,7 @@ public class SaleOrderActivity extends BaseActivity {
                 if (!tempSaleOrderNo.equals("")) {
                     saleOrderNo = tempSaleOrderNo;
                     txtSaleOrderNo.setText(saleOrderNo);
-                    if(!confirmFlag)
+                    if (!confirmFlag)
                         Toast.makeText(SaleOrderActivity.this, "저장 되었습니다.", Toast.LENGTH_SHORT).show();
                     btnSave.setText("저장");
                     btnConfirm.setEnabled(true);
@@ -506,18 +499,18 @@ public class SaleOrderActivity extends BaseActivity {
                     btnConfirm.setText("확정");
                 }
                 //확정 까지한다
-                if(confirmFlag){
+                if (confirmFlag) {
                     confirmSaleOrder();
                 }
 
                 //저장한 데이터 색상 투명하게 변경
-                for(int i=0;i<list.size();i++){
-                    list.get(i).isChanged=false;
+                for (int i = 0; i < list.size(); i++) {
+                    list.get(i).isChanged = false;
                 }
                 txtTotal.setBackgroundColor(Color.TRANSPARENT);
                 txtTotalWeight.setBackgroundColor(Color.TRANSPARENT);
 
-                if(!confirmFlag){
+                if (!confirmFlag) {
                     saleOrderAdapter.notifyDataSetChanged();
                 }
 
@@ -533,7 +526,7 @@ public class SaleOrderActivity extends BaseActivity {
     /**
      * 주문서의 상태에 따라서 버튼의 상태를 바꾼다.
      */
-    private void ChangeButtonState(){
+    private void ChangeButtonState() {
         if (!saleOrderNo.equals("")) {
             txtSaleOrderNo.setText(saleOrderNo);
             btnSave.setText("저장");
@@ -551,8 +544,7 @@ public class SaleOrderActivity extends BaseActivity {
                 btnConfirm.setText("확정");
                 setEnableFalseOrTrueEditText(true);
             }
-        }
-        else{
+        } else {
             btnSave.setText("주문");
             toggleOrder.uncheck(R.id.btnSave);
         }
@@ -575,7 +567,7 @@ public class SaleOrderActivity extends BaseActivity {
             saleOrder.orderQty = addedSaleOrderArrayList.get(i).orderQty;
             saleOrder.orderPrice = addedSaleOrderArrayList.get(i).orderPrice;
             saleOrder.standardPrice = addedSaleOrderArrayList.get(i).standardPrice;
-            saleOrder.isChanged=true;
+            saleOrder.isChanged = true;
             saleOrder.logicalWeight = addedSaleOrderArrayList.get(i).logicalWeight;
             saleOrder.stockQty = addedSaleOrderArrayList.get(i).stockQty;
             saleOrderArrayList.add(saleOrder);
@@ -606,24 +598,24 @@ public class SaleOrderActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
 
-        boolean changeFlag=false;
-        boolean changeFlag2=false;//항목 하나 삭제시 변경
-        ColorDrawable cd=(ColorDrawable)txtTotal.getBackground();
+        boolean changeFlag = false;
+        boolean changeFlag2 = false;//항목 하나 삭제시 변경
+        ColorDrawable cd = (ColorDrawable) txtTotal.getBackground();
 
-        if(cd!=null){
-            int test=cd.getColor();
-            Toast.makeText(SaleOrderActivity.this,Integer.toString(test),Toast.LENGTH_SHORT);
-            if(test!=0){
-                changeFlag2=true;
+        if (cd != null) {
+            int test = cd.getColor();
+            Toast.makeText(SaleOrderActivity.this, Integer.toString(test), Toast.LENGTH_SHORT);
+            if (test != 0) {
+                changeFlag2 = true;
             }
         }
 
-        for(int i=0; i<saleOrderArrayList.size();i++){
-            if(saleOrderArrayList.get(i).isChanged)
-                changeFlag=true;
+        for (int i = 0; i < saleOrderArrayList.size(); i++) {
+            if (saleOrderArrayList.get(i).isChanged)
+                changeFlag = true;
         }
 
-        if(changeFlag || changeFlag2){//변경된 데이터가 존재
+        if (changeFlag || changeFlag2) {//변경된 데이터가 존재
             //주문하지 않은 데이터는 삭제합니다. 안내 메세지
             new MaterialAlertDialogBuilder(SaleOrderActivity.this)
                     .setTitle("뒤로 가기")
@@ -644,8 +636,7 @@ public class SaleOrderActivity extends BaseActivity {
                     return;
                 }
             }).show();
-        }
-        else{
+        } else {
             finish();
         }
     }
@@ -685,14 +676,14 @@ public class SaleOrderActivity extends BaseActivity {
         protected void onPostExecute(String result) {
             // 통신이 완료되면 호출됩니다.
             // 결과에 따른 UI 수정 등은 여기서 합니다
-            double initTotalAmt=0;
-            double initTotalWeight=0;
+            double initTotalAmt = 0;
+            double initTotalWeight = 0;
             try {
                 SaleOrder saleOrder;
                 JSONArray jsonArray = new JSONArray(result);
                 String ErrorCheck = "";
-                String Remark1="";
-                String Remark2="";
+                String Remark1 = "";
+                String Remark2 = "";
                 //partNameDic = new ArrayList<>();
                 //partSpecNameDic = new ArrayList<>();
                 //double totalAmt=0;
@@ -718,15 +709,15 @@ public class SaleOrderActivity extends BaseActivity {
                     saleOrder.logicalWeight = Double.parseDouble(child.getString("LogicalWeight"));
                     saleOrder.orderAmount = Double.parseDouble(child.getString("OrderAmount"));
                     saleOrder.stockQty = Double.parseDouble(child.getString("StockQty"));
-                    saleOrder.Weight = Double.parseDouble(saleOrder.orderQty)*saleOrder.logicalWeight;
-                    saleOrder.initState=true;
+                    saleOrder.Weight = Double.parseDouble(saleOrder.orderQty) * saleOrder.logicalWeight;
+                    saleOrder.initState = true;
 
                     Remark1 = child.getString("Remark1");
                     Remark2 = child.getString("Remark2");
                     fixDivision = child.getString("FixDivision");
 
                     initTotalAmt += Double.parseDouble(child.getString("OrderAmount"));
-                    initTotalWeight+= Double.parseDouble(saleOrder.orderQty)*saleOrder.logicalWeight;
+                    initTotalWeight += Double.parseDouble(saleOrder.orderQty) * saleOrder.logicalWeight;
 
                     saleOrderArrayList.add(saleOrder);
 
@@ -736,7 +727,7 @@ public class SaleOrderActivity extends BaseActivity {
                         partSpecNameDic.add(stock.PartSpecName);*/
                 }
                 saleOrderAdapter = new SaleOrderAdapter
-                        (SaleOrderActivity.this, R.layout.listview_saleorder_row, saleOrderArrayList, listview, edtRemark, edtRemark2, txtTotal,layoutTop, saleOrderNo, txtTotalWeight);
+                        (SaleOrderActivity.this, R.layout.listview_saleorder_row, saleOrderArrayList, listview, edtRemark, edtRemark2, txtTotal, layoutTop, saleOrderNo, txtTotalWeight);
                 listview.setAdapter(saleOrderAdapter);
                 txtSaleOrderNo.setText(saleOrderNo);
                 if (fixDivision.equals("Y")) {//확정
@@ -748,14 +739,14 @@ public class SaleOrderActivity extends BaseActivity {
                 } else {
                     toggleOrder.uncheck(R.id.btnConfirm);
                     btnConfirm.setText("확정");
-                    if(!saleOrderNo.equals(""))
+                    if (!saleOrderNo.equals(""))
                         toggleOrder.check(R.id.btnSave);
                     setEnableFalseOrTrueEditText(true);
                 }
 
 
-                txtTotal.setText("합계: "+Double.toString(initTotalAmt)+" 원");
-                txtTotalWeight.setText("중량: "+((int)initTotalWeight)+" KG");
+                txtTotal.setText("합계: " + Double.toString(initTotalAmt) + " 원");
+                txtTotalWeight.setText("중량: " + ((int) initTotalWeight) + " KG");
                 edtRemark.setText(Remark1);
                 edtRemark2.setText(Remark2);
                 //txtTotal.setText("Why");

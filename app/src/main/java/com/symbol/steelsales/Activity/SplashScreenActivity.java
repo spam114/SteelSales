@@ -13,7 +13,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -24,12 +23,6 @@ import android.os.Handler;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,8 +30,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
-import com.symbol.steelsales.Adapter.CustomerLocationAdapter;
-import com.symbol.steelsales.Application.Application;
 import com.symbol.steelsales.BuildConfig;
 import com.symbol.steelsales.MainActivity2;
 import com.symbol.steelsales.Object.Dept;
@@ -68,6 +59,7 @@ public class SplashScreenActivity extends BaseActivity {
     SharedPreferences _pref;
     Boolean isShortcut = false;//아이콘의 생성
     private boolean mIsRegisterReceiver;
+
     /**
      * Called when the activity is first created.
      */
@@ -118,20 +110,21 @@ public class SplashScreenActivity extends BaseActivity {
         int margin = 0;
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
-        int dpi= metrics.densityDpi;
+        int dpi = metrics.densityDpi;
 
-        if (dpi<=160) { // mdpi
+        if (dpi <= 160) { // mdpi
             Users.Dpi = "mdpi";
-        } else if (dpi<=240) { // hdpi
+        } else if (dpi <= 240) { // hdpi
             Users.Dpi = "hdpi";
-        } else if (dpi<=320) { // xhdpi
+        } else if (dpi <= 320) { // xhdpi
             Users.Dpi = "xhdpi";
-        } else if (dpi<=480) { // xxhdpi
+        } else if (dpi <= 480) { // xxhdpi
             Users.Dpi = "xxhdpi";
-        } else if (dpi<=640) { // xxxhdpi
+        } else if (dpi <= 640) { // xxxhdpi
             Users.Dpi = "xxxhdpi";
         }
     }
+
     private void addShortcut(Context context) {
 
         Intent shortcutIntent = new Intent(Intent.ACTION_MAIN);
@@ -475,8 +468,8 @@ public class SplashScreenActivity extends BaseActivity {
                         Users.authorityList.add(Integer.parseInt(child.getString("Authority")));
                         Users.authorityNameList.add(child.getString("AuthorityName"));
                         Users.CustomerCode = child.getString("CustomerCode");
-                        Users.DeptCode=child.getString("DeptCode");
-                        Users.DeptName=child.getString("DeptName");
+                        Users.DeptCode = child.getString("DeptCode");
+                        Users.DeptName = child.getString("DeptName");
 
 
                     }
@@ -547,23 +540,23 @@ public class SplashScreenActivity extends BaseActivity {
                     location.CustomerName = child.getString("CustomerName");
                     Users.locationArrayList.add(location);
                 }
-                Dept aDept= new Dept();
-                aDept.deptCode="-1";
-                aDept.deptName="전체";
-                aDept.index=0;
-                Dept sDept= new Dept();
-                sDept.deptCode="14100";
-                sDept.deptName="서울철강영업팀";
-                sDept.index=1;
-                Dept pDept= new Dept();
-                pDept.deptCode="14200";
-                pDept.deptName="부산철강영업팀";
-                pDept.index=2;
-                Dept fDept= new Dept();
-                fDept.deptCode="14500";
-                fDept.deptName="해외철강영업파트";
-                fDept.index=3;
-                Users.deptArrayList= new ArrayList<>();
+                Dept aDept = new Dept();
+                aDept.deptCode = "-1";
+                aDept.deptName = "전체";
+                aDept.index = 0;
+                Dept sDept = new Dept();
+                sDept.deptCode = "14100";
+                sDept.deptName = "서울철강영업팀";
+                sDept.index = 1;
+                Dept pDept = new Dept();
+                pDept.deptCode = "14200";
+                pDept.deptName = "부산철강영업팀";
+                pDept.index = 2;
+                Dept fDept = new Dept();
+                fDept.deptCode = "14500";
+                fDept.deptName = "해외철강영업파트";
+                fDept.index = 3;
+                Users.deptArrayList = new ArrayList<>();
                 Users.deptArrayList.add(aDept);
                 Users.deptArrayList.add(sDept);
                 Users.deptArrayList.add(pDept);

@@ -81,12 +81,12 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
         this.context = context;
         this.layoutRsourceId = layoutResourceID;
         this.data = data;
-        this.listView=listView;
-        this.edtRemark=edtRemark;
-        this.edtRemark2=edtRemark2;
-        this.txtTotal=txtTotal;
-        this.txtTotalWeight=txtTotalWeight;
-        this.layoutTop=layoutTop;
+        this.listView = listView;
+        this.edtRemark = edtRemark;
+        this.edtRemark2 = edtRemark2;
+        this.txtTotal = txtTotal;
+        this.txtTotalWeight = txtTotalWeight;
+        this.layoutTop = layoutTop;
         this.saleOrderNo = saleOrderNo;
     }
 
@@ -99,12 +99,12 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             LayoutInflater inflater = ((Activity) context).getLayoutInflater();
             row = inflater.inflate(layoutRsourceId, null);
 
-            txtWeight=row.findViewById(R.id.txtWeight);
-            txtStockQty=row.findViewById(R.id.txtStockQty);
-            txtOrderPrice=row.findViewById(R.id.txtOrderPrice);
-            txtOrderAmount=row.findViewById(R.id.txtOrderAmount);
-            edtOrderQty=(BackPressEditText) row.findViewById(R.id.edtOrderQty);
-            edtDiscountRate=(BackPressEditText) row.findViewById(R.id.edtDiscountRate);
+            txtWeight = row.findViewById(R.id.txtWeight);
+            txtStockQty = row.findViewById(R.id.txtStockQty);
+            txtOrderPrice = row.findViewById(R.id.txtOrderPrice);
+            txtOrderAmount = row.findViewById(R.id.txtOrderAmount);
+            edtOrderQty = (BackPressEditText) row.findViewById(R.id.edtOrderQty);
+            edtDiscountRate = (BackPressEditText) row.findViewById(R.id.edtDiscountRate);
             edtOrderQty.addTextChangedListener(new MyWatcher(edtOrderQty, edtDiscountRate, txtOrderPrice, txtOrderAmount, this, txtTotal, data, row, txtWeight, txtTotalWeight));
             //edtOrderQty.setRawInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
             edtDiscountRate.addTextChangedListener(new MyWatcher2(edtDiscountRate, edtOrderQty, txtOrderPrice, txtOrderAmount, this, txtTotal, data, row, txtWeight, txtTotalWeight));
@@ -119,25 +119,25 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             //ImageView imvRemove;
             //imvRemove= row.findViewById(R.id.imvRemove);
 
-            TextView txtPartName=row.findViewById(R.id.txtPartName);
-            txtWeight=row.findViewById(R.id.txtWeight);
-            txtStockQty=row.findViewById(R.id.txtStockQty);
-            txtOrderPrice=row.findViewById(R.id.txtOrderPrice);
+            TextView txtPartName = row.findViewById(R.id.txtPartName);
+            txtWeight = row.findViewById(R.id.txtWeight);
+            txtStockQty = row.findViewById(R.id.txtStockQty);
+            txtOrderPrice = row.findViewById(R.id.txtOrderPrice);
 
-            txtOrderAmount=row.findViewById(R.id.txtOrderAmount);
-            String strOrderAmount=myFormatter.format(item.orderAmount);
+            txtOrderAmount = row.findViewById(R.id.txtOrderAmount);
+            String strOrderAmount = myFormatter.format(item.orderAmount);
             txtOrderAmount.setText(strOrderAmount);
 
-            txtPartName.setText(item.partName+"\n"+item.partSpecName);
+            txtPartName.setText(item.partName + "\n" + item.partSpecName);
             //txtWeight.setText(Double.toString(item.Weight));
             txtStockQty.setText("");//가용재고
 
-            TextView txtStockQty=row.findViewById(R.id.txtStockQty);
-            String strStockQty=myFormatter.format(item.stockQty);
+            TextView txtStockQty = row.findViewById(R.id.txtStockQty);
+            String strStockQty = myFormatter.format(item.stockQty);
             txtStockQty.setText(strStockQty);
 
-            edtOrderQty=row.findViewById(R.id.edtOrderQty);
-            edtDiscountRate=row.findViewById(R.id.edtDiscountRate);
+            edtOrderQty = row.findViewById(R.id.edtOrderQty);
+            edtDiscountRate = row.findViewById(R.id.edtDiscountRate);
 
             edtDiscountRate.setTag(item);
             edtOrderQty.setTag(item);
@@ -159,7 +159,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
-                    if(actionId == EditorInfo.IME_ACTION_DONE){ // IME_ACTION_SEARCH , IME_ACTION_GO
+                    if (actionId == EditorInfo.IME_ACTION_DONE) { // IME_ACTION_SEARCH , IME_ACTION_GO
 
                         layoutTop.requestFocus();
                         HideKeyBoard(context);
@@ -180,7 +180,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
-                    if(actionId == EditorInfo.IME_ACTION_DONE){ // IME_ACTION_SEARCH , IME_ACTION_GO
+                    if (actionId == EditorInfo.IME_ACTION_DONE) { // IME_ACTION_SEARCH , IME_ACTION_GO
                         layoutTop.requestFocus();
                         HideKeyBoard(context);
                     }
@@ -191,25 +191,25 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             edtDiscountRate.setOnKeyListener(new View.OnKeyListener() {
                 @Override
                 public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                    item.directPrice=0;
-                    item.initState=false;
+                    item.directPrice = 0;
+                    item.initState = false;
                     return false;
                 }
             });
 
-            if(item.discountRate.equals("") || item.discountRate.equals("0"))
+            if (item.discountRate.equals("") || item.discountRate.equals("0"))
                 edtDiscountRate.setText("-");
             else
                 edtDiscountRate.setText(item.discountRate);
 
 
-            if(!item.orderPrice.equals("")){
-                double tempPrice=Double.parseDouble(item.orderPrice);
-                String strOrderPrice = myFormatter.format((int)tempPrice);
+            if (!item.orderPrice.equals("")) {
+                double tempPrice = Double.parseDouble(item.orderPrice);
+                String strOrderPrice = myFormatter.format((int) tempPrice);
                 txtOrderPrice.setText(strOrderPrice);
             }
 
-           // edtDiscountRate.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(5,1)});
+            // edtDiscountRate.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(5,1)});
 
             /*edtDiscountRate.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
@@ -221,13 +221,12 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
                 }
             });*/
 
-            if(item.isEnabled) {
+            if (item.isEnabled) {
                 edtOrderQty.setEnabled(true);
                 edtDiscountRate.setEnabled(true);
                 txtOrderPrice.setEnabled(true);
                 row.setEnabled(true);
-            }
-            else{
+            } else {
                 edtOrderQty.setEnabled(false);
                 edtDiscountRate.setEnabled(false);
                 txtOrderPrice.setEnabled(false);
@@ -237,7 +236,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             row.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    view.performHapticFeedback( HapticFeedbackConstants.LONG_PRESS );
+                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
 
                     new MaterialAlertDialogBuilder(getContext())
                             .setTitle("주문항목 삭제")
@@ -251,11 +250,10 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
                                             data.remove(position);
                                             txtTotal.setBackgroundColor(Color.parseColor("#FFF5F5DC"));
                                             txtTotalWeight.setBackgroundColor(Color.parseColor("#FFF5F5DC"));
-                                            if(data.size()==0){
-                                                if(saleOrderNo.equals("")){//SaleOrderActivity 종료
-                                                    ((Activity)context).finish();
-                                                }
-                                                else{//SaleOrderActivity 종료 + DB Delete 로직 실행
+                                            if (data.size() == 0) {
+                                                if (saleOrderNo.equals("")) {//SaleOrderActivity 종료
+                                                    ((Activity) context).finish();
+                                                } else {//SaleOrderActivity 종료 + DB Delete 로직 실행
                                                     deleteSalesOrderData();
                                                 }
                                             }
@@ -277,8 +275,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             txtOrderPrice.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
-                    txtOrderPrice= finalRow.findViewById(R.id.txtOrderPrice);
+                    txtOrderPrice = finalRow.findViewById(R.id.txtOrderPrice);
                     edtDiscountRate = finalRow.findViewById(R.id.edtDiscountRate);
                     //
                     LayoutInflater inflater = LayoutInflater.from(context);
@@ -291,25 +288,29 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
                     dialog.setCanceledOnTouchOutside(false);//없어지지 않도록 설정
                     //Dialog 보이기
                     dialog.show();
-                    TextView tvTitle=dialogView.findViewById(R.id.tvTitle);
-                    tvTitle.setText(item.partName+"("+item.partSpecName+")");
-                    Button btnOK=dialogView.findViewById(R.id.btnOK);
-                    Button btnCancel =dialogView.findViewById(R.id.btnCancel);
-                    BackPressEditText edtOrderPrice=dialogView.findViewById(R.id.edtOrderPrice);
+                    TextView tvTitle = dialogView.findViewById(R.id.tvTitle);
+                    tvTitle.setText(item.partName + "(" + item.partSpecName + ")");
+                    Button btnOK = dialogView.findViewById(R.id.btnOK);
+                    Button btnCancel = dialogView.findViewById(R.id.btnCancel);
+                    BackPressEditText edtOrderPrice = dialogView.findViewById(R.id.edtOrderPrice);
                     btnOK.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            double tempPrice = Double.parseDouble(edtOrderPrice.getText().toString());
 
-                            double tempPrice=Double.parseDouble(edtOrderPrice.getText().toString());
+                            if(tempPrice==0){
+                                Toast.makeText(context, "단가는 0보다 커야 합니다.", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
                             //item.orderPrice = edtOrderPrice.getText().toString();
                             item.directPrice = Double.parseDouble(edtOrderPrice.getText().toString());
-                            item.discountRate="0";
-                            String strOrderPrice = myFormatter.format((int)tempPrice);
+                            item.discountRate = "0";
+                            String strOrderPrice = myFormatter.format((int) tempPrice);
                             txtOrderPrice.setText(strOrderPrice);
                             //notifyDataSetChanged();
                             edtDiscountRate.setText("-");
                             finalRow.setBackgroundColor(Color.parseColor("#FFF5F5DC"));
-                            item.isChanged=true;
+                            item.isChanged = true;
                             dialog.dismiss();
                         }
                     });
@@ -358,6 +359,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
     public class DeleteSalesOrderData extends AsyncTask<Void, Void, String> {
         String url;
         ContentValues values;
+
         DeleteSalesOrderData(String url, ContentValues values) {
             this.url = url;
             this.values = values;
@@ -399,7 +401,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
 
                     //tempSaleOrderNo = child.getString("SaleOrderNo");
                 }
-                ((Activity)context).finish();
+                ((Activity) context).finish();
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -427,7 +429,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
 
     @Override
     public void progressON(String message, Handler handler) {
-        ApplicationClass.getInstance().progressON((Activity)context, message, handler);
+        ApplicationClass.getInstance().progressON((Activity) context, message, handler);
     }
 
     @Override
@@ -447,7 +449,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
 
     @Override
     public void HideKeyBoard(Context context) {
-        ApplicationClass.getInstance().HideKeyBoard((Activity)context);
+        ApplicationClass.getInstance().HideKeyBoard((Activity) context);
     }
 
     private void startProgress() {
