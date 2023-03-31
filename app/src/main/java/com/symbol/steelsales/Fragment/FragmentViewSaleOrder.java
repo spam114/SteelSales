@@ -248,6 +248,8 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
                         saleOrderView.UserCode = child.getString("UserID");
                         saleOrderView.Amount = child.getString("Amount");
                         saleOrderView.Weight = child.getString("Weight");
+                        saleOrderView.Remark1 = child.getString("Remark1");
+                        saleOrderView.Remark2 = child.getString("Remark2");
                         saleOrderViewArrayList.add(saleOrderView);
                     }
                     else{

@@ -75,6 +75,7 @@ public class SaleOrderViewAdapter extends ArrayAdapter<SaleOrderView> implements
             TextView txtEmplyoeeName2 = (TextView) row.findViewById(R.id.txtEmployeeName2);
             TextView txtState = (TextView) row.findViewById(R.id.txtState);
             TextView txtAmount = row.findViewById(R.id.txtAmount);
+            TextView txtRemark = row.findViewById(R.id.txtRemark);
             txtSaleOrderNo.setText(item.SaleOrderNo);
             txtCustomerName.setText(item.CustomerName + "(" + item.LocationName + ")");
             txtEmplyoeeName.setText(item.EmployeeName);
@@ -85,7 +86,7 @@ public class SaleOrderViewAdapter extends ArrayAdapter<SaleOrderView> implements
                 txtState.setTextColor(Color.BLACK);
             } else if (item.State.equals("주문확정")) {
                 txtAmount.setVisibility(View.VISIBLE);
-                txtState.setTextColor(Color.parseColor("#FF006400"));
+                txtState.setTextColor(Color.parseColor("#FF339900"));
                 //txtAmount.setTextColor(Color.parseColor("#FF006400"));
             } else if (item.State.equals("배차완료")) {
                 txtAmount.setVisibility(View.VISIBLE);
@@ -101,7 +102,10 @@ public class SaleOrderViewAdapter extends ArrayAdapter<SaleOrderView> implements
             String strWeight = myFormatter.format(Double.parseDouble(item.Weight));
 
             txtAmount.setText(strAmount+" ("+strWeight+")");
-
+            String strResult=item.Remark1;
+            if(!item.Remark2.equals(""))
+                strResult+="("+item.Remark2+")";
+            txtRemark.setText(strResult);
 
            /* TextView txtPartSpecName = (TextView) row.findViewById(R.id.txtPartSpecName);
             txtPartSpecName.setText(((Location) data.get(position)).PartSpecName);

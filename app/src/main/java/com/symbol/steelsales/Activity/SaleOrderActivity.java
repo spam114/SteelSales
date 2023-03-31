@@ -570,6 +570,7 @@ public class SaleOrderActivity extends BaseActivity {
             saleOrder.isChanged = true;
             saleOrder.logicalWeight = addedSaleOrderArrayList.get(i).logicalWeight;
             saleOrder.stockQty = addedSaleOrderArrayList.get(i).stockQty;
+            saleOrder.stockOutQty = 0;
             saleOrderArrayList.add(saleOrder);
         }
         saleOrderAdapter.notifyDataSetChanged();
@@ -710,6 +711,7 @@ public class SaleOrderActivity extends BaseActivity {
                     saleOrder.orderAmount = Double.parseDouble(child.getString("OrderAmount"));
                     saleOrder.stockQty = Double.parseDouble(child.getString("StockQty"));
                     saleOrder.Weight = Double.parseDouble(saleOrder.orderQty) * saleOrder.logicalWeight;
+                    saleOrder.stockOutQty = Double.parseDouble(child.getString("StockOutQty"));
                     saleOrder.initState = true;
 
                     Remark1 = child.getString("Remark1");

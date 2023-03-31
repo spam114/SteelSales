@@ -15,7 +15,8 @@ public class SaleOrderView implements Serializable {
     public String UserCode="";
     public String Amount="";
     public String Weight="";
-
+    public String Remark1="";
+    public String Remark2="";
     public SaleOrderView() {
         super();
     }

@@ -29,6 +29,7 @@ public class SaleOrder implements Serializable {
     public double logicalWeight=0;//이론중량
     public double Weight=0;//중량
     public double stockQty;//가용재고
+    public double stockOutQty;//출고수량
 
     public SaleOrder() {
         super();

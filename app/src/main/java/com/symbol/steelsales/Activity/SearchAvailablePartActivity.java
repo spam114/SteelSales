@@ -151,6 +151,7 @@ public class SearchAvailablePartActivity extends BaseActivity {
                         saleOrder.isChanged=true;
                         saleOrder.logicalWeight = Double.parseDouble(stock.Weight);
                         saleOrder.stockQty = Double.parseDouble(stock.Qty);
+                        saleOrder.stockOutQty = 0;
                         saleOrderArrayList.add(saleOrder);
                     }
                 }

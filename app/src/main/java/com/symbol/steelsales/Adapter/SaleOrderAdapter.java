@@ -62,6 +62,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
     String saleOrderNo;
     TextView txtWeight;
     TextView txtStockQty;
+    TextView txtStockOutQty;
 
 
    /* String lastPart;//마지막에 추가된 품목,규격
@@ -122,6 +123,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             TextView txtPartName = row.findViewById(R.id.txtPartName);
             txtWeight = row.findViewById(R.id.txtWeight);
             txtStockQty = row.findViewById(R.id.txtStockQty);
+            txtStockOutQty = row.findViewById(R.id.txtStockOutQty);
             txtOrderPrice = row.findViewById(R.id.txtOrderPrice);
 
             txtOrderAmount = row.findViewById(R.id.txtOrderAmount);
@@ -135,6 +137,10 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             TextView txtStockQty = row.findViewById(R.id.txtStockQty);
             String strStockQty = myFormatter.format(item.stockQty);
             txtStockQty.setText(strStockQty);
+
+            txtStockOutQty.setText("");
+            String strStockOutQty= myFormatter.format(item.stockOutQty);
+            txtStockOutQty.setText(strStockOutQty);
 
             edtOrderQty = row.findViewById(R.id.edtOrderQty);
             edtDiscountRate = row.findViewById(R.id.edtDiscountRate);

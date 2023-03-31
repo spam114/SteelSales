@@ -1,71 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/detailLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_marginBottom="10dp"
+    android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="vertical">
 
-    <LinearLayout
-        android:id="@+id/flayout"
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/txtPartName"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="7dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="2dp"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:weightSum="10">
+        android:layout_marginStart="7dp"
+        android:layout_marginTop="5dp"
+        android:text="품명/규격"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+        app:layout_constraintEnd_toStartOf="@+id/txtWeight"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="4.6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/txtPartName"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:layout_weight="4.6"
-            android:text="품명/규격"
-            android:textColor="#000000"
-            android:textSize="16sp" />
+    <TextView
+        android:id="@+id/txtWeight"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="right"
+        android:text="중량"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/flayout"
+        app:layout_constraintEnd_toStartOf="@+id/txtStockQty"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="2.6"
+        app:layout_constraintStart_toEndOf="@+id/txtPartName"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/txtWeight"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:layout_weight="2.6"
-            android:gravity="right"
-            android:text="중량"
-            android:textColor="#000000"
-            android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/txtStockQty"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:layout_weight="2.8"
-            android:gravity="right"
-            android:text="가용재고"
-            android:textColor="#000000"
-            android:textSize="16sp" />
-
-    </LinearLayout>
+    <TextView
+        android:id="@+id/txtStockQty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="7dp"
+        android:gravity="right"
+        android:text="가용재고"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toTopOf="@+id/txtOrderAmount"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="2.8"
+        app:layout_constraintStart_toEndOf="@+id/txtWeight"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:id="@+id/linearLayout4"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="7dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginBottom="8dp"
-        android:gravity="center_vertical"
+        android:layout_marginStart="7dp"
+        android:layout_marginBottom="7dp"
         android:orientation="horizontal"
-        android:weightSum="10">
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/flayout"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="4.6"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtPartName">
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout"
@@ -84,9 +86,9 @@
                 android:layout_marginTop="2dp"
                 android:layout_marginEnd="2dp"
                 android:layout_marginBottom="2dp"
-                android:importantForAutofill="no"
                 android:gravity="center_vertical|end"
                 android:imeOptions="actionDone"
+                android:importantForAutofill="no"
                 android:inputType="numberSigned"
                 android:maxLength="5"
                 android:numeric="signed"
@@ -114,38 +116,63 @@
                 android:layout_marginEnd="2dp"
                 android:layout_marginBottom="2dp"
                 android:autoText="false"
-                android:importantForAutofill="no"
                 android:gravity="center_vertical|end"
                 android:imeOptions="actionDone"
+                android:importantForAutofill="no"
                 android:inputType="numberSigned|numberDecimal"
                 android:padding="3dp"
                 android:singleLine="true"
                 android:textSize="16sp" />
 
         </com.google.android.material.textfield.TextInputLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/flayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/txtOrderAmount"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="2.6"
+        app:layout_constraintStart_toEndOf="@+id/linearLayout4"
+        app:layout_constraintTop_toBottomOf="@+id/txtWeight">
+
+        <TextView
+            android:id="@+id/txtStockOutQty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:gravity="end"
+            android:text="출고량"
+            android:textColor="#000000"
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/txtOrderPrice"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:layout_weight="2.6"
             android:gravity="end"
             android:text="단가"
             android:textColor="#000000"
             android:textSize="16sp" />
-
-        <TextView
-            android:id="@+id/txtOrderAmount"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="2dp"
-            android:layout_weight="2.8"
-            android:gravity="right|center_vertical|end"
-            android:text="금액"
-            android:textColor="#000000"
-            android:textSize="16sp" />
-
     </LinearLayout>
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/txtOrderAmount"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="7dp"
+        android:gravity="right|center_vertical|end"
+        android:text="금액"
+        android:textColor="#000000"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintHorizontal_weight="2.8"
+        app:layout_constraintStart_toEndOf="@+id/flayout"
+        app:layout_constraintTop_toBottomOf="@+id/txtStockQty" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

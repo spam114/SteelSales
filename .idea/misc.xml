@@ -5,6 +5,21 @@
       <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
     </configurations>
   </component>
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/JHLEE/Desktop/KumkangApp/SteelSales/app/src/main/res/layout/activity_main2.xml" value="0.2617753623188406" />
+        <entry key="..\:/Users/JHLEE/Desktop/KumkangApp/SteelSales/app/src/main/res/layout/activity_saleorder.xml" value="0.33" />
+        <entry key="..\:/Users/JHLEE/Desktop/KumkangApp/SteelSales/app/src/main/res/layout/dialog_direct_price.xml" value="0.32065217391304346" />
+        <entry key="..\:/Users/JHLEE/Desktop/KumkangApp/SteelSales/app/src/main/res/layout/layout1.xml" value="0.19322916666666667" />
+        <entry key="..\:/Users/JHLEE/Desktop/KumkangApp/SteelSales/app/src/main/res/layout/layout2.xml" value="0.25" />
+        <entry key="..\:/Users/JHLEE/Desktop/KumkangApp/SteelSales/app/src/main/res/layout/layout3.xml" value="0.25" />
+        <entry key="..\:/Users/JHLEE/Desktop/KumkangApp/SteelSales/app/src/main/res/layout/layout4.xml" value="0.19322916666666667" />
+        <entry key="..\:/Users/JHLEE/Desktop/KumkangApp/SteelSales/app/src/main/res/layout/listview_saleorder_row.xml" value="0.33" />
+        <entry key="..\:/Users/JHLEE/Desktop/KumkangApp/SteelSales/app/src/main/res/layout/listview_view_saleorder_row.xml" value="0.33" />
+      </map>
+    </option>
+  </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="11" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
