@@ -3,12 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.symbol.steelsales">
 
-    <!--인터넷-->
+    <!--명시해야할 권한 = 위험 권한 = 런타임 권한-->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_NUMBERS" />
+
+    <!--여기만으로 OK-->
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/><!--오레오 버전 부터 추가된  설치 권한-->
-    <uses-permission android:name="android.permission.BLUETOOTH"/><!--핸드폰정보 이름 설정값을 알아오기위한 블루투스 권한-->
 
     <application
         android:name="com.symbol.steelsales.Application.ApplicationClass"
@@ -26,6 +28,7 @@
         <activity android:name=".Activity.SplashScreenActivity"
             tools:ignore="LockedOrientationActivity"
             android:screenOrientation="portrait"
+            android:exported="true"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -69,6 +72,11 @@
             >
         </activity>
         <activity android:name=".Activity.MinapActivity"
+            tools:ignore="LockedOrientationActivity"
+            android:screenOrientation="portrait"
+            >
+        </activity>
+        <activity android:name=".Activity.StockOutDetailActivity"
             tools:ignore="LockedOrientationActivity"
             android:screenOrientation="portrait"
             >

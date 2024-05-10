@@ -21,10 +21,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.symbol.steelsales.Adapter.SaleOrderViewAdapter;
+import com.symbol.steelsales.Adapter.StockOutAdapter;
 import com.symbol.steelsales.Application.ApplicationClass;
 import com.symbol.steelsales.Interface.BaseActivityInterface;
-import com.symbol.steelsales.Object.SaleOrderView;
+import com.symbol.steelsales.Object.StockOut;
 import com.symbol.steelsales.Object.Users;
 import com.symbol.steelsales.R;
 import com.symbol.steelsales.RequestHttpURLConnection;
@@ -36,12 +36,12 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-public class FragmentViewSaleOrder extends Fragment implements BaseActivityInterface {
+public class FragmentStockOut extends Fragment implements BaseActivityInterface {
     Context context;
     //TextInputEditText edtSearch;
     ListView listview;
-    ArrayList<SaleOrderView> saleOrderViewArrayList;
-    SaleOrderViewAdapter saleOrderViewAdapter;
+    ArrayList<StockOut> stockOutArrayList;
+    StockOutAdapter stockOutAdapter;
     TextView txtFromDate;
     Spinner spinnerDept;
 
@@ -51,13 +51,12 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
 
     TextView txtTotalAmount;
     TextView txtTotalWeight;
-    public boolean progressFlag = true;//로딩바 여부
 
-    public FragmentViewSaleOrder() {
+    public FragmentStockOut() {
 
     }
 
-    public FragmentViewSaleOrder(Context context, TextView txtTotalAmount, TextView txtTotalWeight) {
+    public FragmentStockOut(Context context, TextView txtTotalAmount, TextView txtTotalWeight) {
         this.context = context;
         this.txtTotalAmount=txtTotalAmount;
         this.txtTotalWeight=txtTotalWeight;
@@ -72,8 +71,7 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if(progressFlag)
-                    progressOFF2(this.getClass().getName());
+                progressOFF2(this.getClass().getName());
             }
         }, 10000);
         progressON("Loading...", handler);
@@ -82,7 +80,7 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.layout2, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.layout6, container, false);
         this.txtFromDate = rootView.findViewById(R.id.txtFromDate);
         final Calendar calendar = Calendar.getInstance();
         tyear = calendar.get(Calendar.YEAR);
@@ -129,12 +127,12 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
                 if(view==null){
                     if(position==0){
                         String fromDate=tyear+"-"+(tmonth+1)+"-"+tdate;
-                        getViewSaleOrderData(fromDate);
+                        getStockOutData(fromDate);
                     }
                     return;
                 }
                 String fromDate=tyear+"-"+(tmonth+1)+"-"+tdate;
-                getViewSaleOrderData(fromDate);
+                getStockOutData(fromDate);
             }
 
             @Override
@@ -161,7 +159,7 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
                                 tdate=dayOfMonth;
                                 String fromDate=tyear+"-"+(tmonth+1)+"-"+tdate;
                                 //DATA가져오기
-                                getViewSaleOrderData(fromDate);
+                                getStockOutData(fromDate);
 
                             }
                         }
@@ -171,36 +169,32 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
         dpd.show();
     }
 
-    public void getViewSaleOrderData(String fromDate) {
-        String url = "";
+    public void getStockOutData(String fromDate) {
+        String url = getString(R.string.service_address) + "getStockOutData";
         ContentValues values = new ContentValues();
         values.put("FromDate", fromDate);
         values.put("BusinessClassCode", 2);
-        values.put("CustomerCode",Users.CustomerCode);
-        if (Users.authorityList.contains(2)) {//대리점 권한
-            url = getString(R.string.service_address) + "getViewSaleOrderData2";
-            values.put("UserID", Users.UserID);
-        }
-        else {
-            url = getString(R.string.service_address) + "getViewSaleOrderData";
-            values.put("UserID", "");//전체 주문서 VIEW
-        }
-        int position=spinnerDept.getSelectedItemPosition();
-        String deptCode="-1";
-        for(int i=0;i<Users.deptArrayList.size();i++){
-            if(Users.deptArrayList.get(i).index==position)
-                deptCode=Users.deptArrayList.get(i).deptCode;
+        String customerCode = "";
+        if (Users.authorityList.contains(2))
+            customerCode = Users.CustomerCode;
+        values.put("CustomerCode",customerCode);
+        values.put("OrderType", 1);
+        int position = spinnerDept.getSelectedItemPosition();
+        String deptCode = "-1";
+        for (int i = 0; i < Users.deptArrayList.size(); i++) {
+            if (Users.deptArrayList.get(i).index == position)
+                deptCode = Users.deptArrayList.get(i).deptCode;
         }
         values.put("DeptCode", deptCode);
-        GetViewSaleOrderData gsod = new GetViewSaleOrderData(url, values);
+        GetStockOutData gsod = new GetStockOutData(url, values);
         gsod.execute();
     }
 
-    public class GetViewSaleOrderData extends AsyncTask<Void, Void, String> {
+    public class GetStockOutData extends AsyncTask<Void, Void, String> {
         String url;
         ContentValues values;
 
-        GetViewSaleOrderData(String url, ContentValues values) {
+        GetStockOutData(String url, ContentValues values) {
             this.url = url;
             this.values = values;
         }
@@ -208,8 +202,7 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            if(progressFlag)
-                startProgress();
+            startProgress();
             //progress bar를 보여주는 등등의 행위
         }
 
@@ -226,10 +219,10 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
             // 통신이 완료되면 호출됩니다.
             // 결과에 따른 UI 수정 등은 여기서 합니다
             try {
-                SaleOrderView saleOrderView;
+                StockOut stockOut;
                 JSONArray jsonArray = new JSONArray(result);
                 String ErrorCheck = "";
-                saleOrderViewArrayList = new ArrayList<>();
+                stockOutArrayList = new ArrayList<>();
                 String totalAmount="";
                 String totalWeight="";
                 for (int i = 0; i < jsonArray.length(); i++) {
@@ -240,28 +233,26 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
                         showErrorDialog(context, ErrorCheck, 2);
                         return;
                     }
-                    if(!child.getString("SaleOrderNo").equals("Total")){
-                        saleOrderView = new SaleOrderView();
-                        saleOrderView.SaleOrderNo = child.getString("SaleOrderNo");
-                        saleOrderView.LocationNo = child.getString("LocationNo");
-                        saleOrderView.LocationName = child.getString("LocationName");
-                        saleOrderView.CustomerCode = child.getString("CustomerCode");
-                        saleOrderView.CustomerName = child.getString("CustomerName");
-                        saleOrderView.EmployeeName = child.getString("EmployeeName");
-                        saleOrderView.EmployeeName2 = child.getString("EmployeeName2");
-                        saleOrderView.State = child.getString("State");
-                        saleOrderView.UserCode = child.getString("UserID");
-                        saleOrderView.Amount = child.getString("Amount");
-                        saleOrderView.Weight = child.getString("Weight");
-                        saleOrderView.Remark1 = child.getString("Remark1");
-                        saleOrderView.Remark2 = child.getString("Remark2");
-                        saleOrderViewArrayList.add(saleOrderView);
+                    if(!child.getString("StockOutNo").equals("Total")){
+                        stockOut = new StockOut();
+                        stockOut.CustomerCode = child.getString("CustomerCode");
+                        stockOut.CustomerName = child.getString("CustomerName");
+                        stockOut.LocationNo = child.getString("LocationNo");
+                        stockOut.LocationName = child.getString("LocationName");
+                        stockOut.OutPrice = child.getString("OutPrice");
+                        stockOut.LogicalWeight = child.getString("LogicalWeight");
+                        stockOut.OutQty = child.getString("OutQty");
+                        stockOut.StockOutNo = child.getString("StockOutNo");
+                        stockOut.SRemark1 = child.getString("SRemark1");
+                        stockOut.SRemark2 = child.getString("SRemark2");
+                        stockOut.EmployeeName = child.getString("EmployeeName");
+                        stockOutArrayList.add(stockOut);
                     }
                     else{
                         DecimalFormat myFormatter = new DecimalFormat("###,###");
 
-                        totalAmount = child.getString("Amount");
-                        totalWeight = child.getString("Weight");
+                        totalAmount = child.getString("OutPrice");
+                        totalWeight = child.getString("LogicalWeight");
 
                         String strAmount = myFormatter.format(Double.parseDouble(totalAmount));
                         String strWeight = myFormatter.format(Double.parseDouble(totalWeight));
@@ -272,16 +263,15 @@ public class FragmentViewSaleOrder extends Fragment implements BaseActivityInter
                 }
 
                 String fromDate=tyear+"-"+(tmonth+1)+"-"+tdate;
-                saleOrderViewAdapter = new SaleOrderViewAdapter
-                        (context, R.layout.listview_view_saleorder_row,saleOrderViewArrayList, FragmentViewSaleOrder.this, fromDate);
-                listview.setAdapter(saleOrderViewAdapter);
+                stockOutAdapter = new StockOutAdapter
+                        (context, R.layout.listview_stockout_row, stockOutArrayList, FragmentStockOut.this, fromDate);
+                listview.setAdapter(stockOutAdapter);
 
             } catch (Exception e) {
                 e.printStackTrace();
 
             } finally {
-                if(progressFlag)
-                    progressOFF2(this.getClass().getName());
+                progressOFF2(this.getClass().getName());
             }
         }
     }

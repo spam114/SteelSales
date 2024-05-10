@@ -127,12 +127,13 @@ public class SaleOrderViewAdapter extends ArrayAdapter<SaleOrderView> implements
 
             ArrayList<SaleOrder> saleOrderArrayList = new ArrayList<>();
 
-            Intent i = new Intent(getContext(), SaleOrderActivity.class);
-            i.putExtra("customerCode", item.CustomerCode);
-            i.putExtra("locationNo", item.LocationNo);
-            i.putExtra("saleOrderNo", item.SaleOrderNo);
-            i.putExtra("saleOrderArrayList", saleOrderArrayList);
+
             row.setOnClickListener(v -> {
+                Intent i = new Intent(getContext(), SaleOrderActivity.class);
+                i.putExtra("customerCode", item.CustomerCode);
+                i.putExtra("locationNo", item.LocationNo);
+                i.putExtra("saleOrderNo", item.SaleOrderNo);
+                i.putExtra("saleOrderArrayList", saleOrderArrayList);
                 ((MainActivity2) (context)).startActivityResult.launch(i);
             });
 

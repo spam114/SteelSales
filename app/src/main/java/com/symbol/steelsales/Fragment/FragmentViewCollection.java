@@ -158,6 +158,10 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
             }
         }
 
+        if (Users.authorityList.contains(2)){
+            this.spinnerDept.setEnabled(false);
+        }
+
         final ArrayAdapter adapter = new ArrayAdapter<String>(getActivity(),
                 R.layout.spinner_item, deptArrayList);
 
@@ -270,10 +274,16 @@ public class FragmentViewCollection extends Fragment implements BaseActivityInte
                 (context, R.layout.listview_customercollection_row, collectionDataArrayList, "미수금현황", deptCode);
         customerCollectionAdapter.notifyDataSetChanged();
         listview.setAdapter(customerCollectionAdapter);
-        String url = getString(R.string.service_address) + "getCollectionData";
+
+        String url="";
+        if (Users.authorityList.contains(2))
+            url = getString(R.string.service_address) + "getCollectionData2";
+        else
+            url = getString(R.string.service_address) + "getCollectionData";
         ContentValues values = new ContentValues();
         values.put("BusinessClassCode", 2);
         values.put("DeptCode", deptCode);
+        values.put("CustomerCode", Users.CustomerCode);
 
         GetCollectionData gsod = new GetCollectionData(url, values);
         gsod.execute();

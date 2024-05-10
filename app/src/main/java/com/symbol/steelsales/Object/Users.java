@@ -20,7 +20,7 @@ public class Users {
     public static String DeptName="";
 
     public static String CustomerCode="";
-
+    public static String CustomerName="";
     public static int REQUEST_SCRAP=4;
     //스캐너관련
 

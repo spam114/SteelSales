@@ -37,6 +37,7 @@ import com.symbol.steelsales.Activity.ProductInOutActivity;
 import com.symbol.steelsales.Activity.SearchAvailablePartActivity;
 import com.symbol.steelsales.Application.ApplicationClass;
 import com.symbol.steelsales.Fragment.FragmentSaleOrder;
+import com.symbol.steelsales.Fragment.FragmentStockOut;
 import com.symbol.steelsales.Fragment.FragmentViewCollection;
 import com.symbol.steelsales.Fragment.FragmentViewSaleOrder;
 import com.symbol.steelsales.Interface.BaseActivityInterface;
@@ -51,6 +52,7 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
     FragmentSaleOrder fragmentSaleOrder;
     FragmentViewSaleOrder fragmentViewSaleOrder;
     FragmentViewCollection fragmentViewCollection;
+    FragmentStockOut fragmentStockOut;
     //FragmentTest fragmentTest;
     boolean testFlag = false;
     ImageView imageView5;
@@ -61,6 +63,8 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
     TabLayout.Tab thirdTab;
     TabLayout.Tab fourthTab;
     TabLayout.Tab fifthTab;
+
+    TabLayout.Tab sixthTab;
 
     LinearLayout layoutRefresh;
     LinearLayout layoutTotal;
@@ -88,16 +92,13 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
         layoutWeight=findViewById(R.id.layoutWeight);
         fragmentViewSaleOrder = new FragmentViewSaleOrder(this, txtTotalAmount, txtTotalWeight);
         fragmentViewCollection = new FragmentViewCollection(this, txtTotalAmount);
-
+        fragmentStockOut = new FragmentStockOut(this, txtTotalAmount, txtTotalWeight);
         noticePref=getSharedPreferences("NoticePref",MODE_PRIVATE);
-
         boolean viewNotice=true;
         viewNotice=noticePref.getBoolean("viewNotice",true);
-
         if(viewNotice==true){
             getNoticeData();
         }
-
  /*       this.stockOutDetailArrayList = new ArrayList<>();
         this.scanDataArrayList = new ArrayList<>();*/
         //this.productionInfoArrayList = new ArrayList<>();
@@ -117,23 +118,24 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                 = (LinearLayout.LayoutParams) container.getLayoutParams();
         params.weight = (float)7.9;
         container.setLayoutParams(params);
-
-
-
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 
         layoutRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
                 if(currentTab==1){
+                    fragmentViewSaleOrder.progressFlag = true;
                     String fromDate = fragmentViewSaleOrder.tyear + "-" + (fragmentViewSaleOrder.tmonth + 1) + "-" + fragmentViewSaleOrder.tdate;
                     fragmentViewSaleOrder.getViewSaleOrderData(fromDate);
                     Toast.makeText(MainActivity2.this, "갱신되었습니다.", Toast.LENGTH_SHORT).show();
                 }
                 else if(currentTab==2){
                     fragmentViewCollection.getCollectionData();
+                }
+                else if(currentTab==5){
+                    String fromDate = fragmentStockOut.tyear + "-" + (fragmentStockOut.tmonth + 1) + "-" + fragmentStockOut.tdate;
+                    fragmentStockOut.getStockOutData(fromDate);
+                    Toast.makeText(MainActivity2.this, "갱신되었습니다.", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -155,14 +157,12 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
         imageView5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(MainActivity2.this);
                 //alertBuilder.setIcon(R.drawable.ic_launcher);
                 //alertBuilder.setTitle(partName + "(" + partSpecName + ")");
                 // List Adapter 생성
                 final ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity2.this,
                         android.R.layout.simple_list_item_1);
-
                 try {
                     String content = "\n어플리케이션: " + (String) getPackageManager().getApplicationLabel(getPackageManager().getApplicationInfo(getPackageManager().getPackageInfo(getPackageName(), 0).packageName, PackageManager.GET_UNINSTALLED_PACKAGES)) + "\n" +
                             "버전: " + getPackageManager().getPackageInfo(getPackageName(), 0).versionName + "\n" +
@@ -198,8 +198,6 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                             }
                         });
                 alertBuilder.show();
-
-
             }
         });
 
@@ -207,12 +205,14 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
         secondTab = tabs.newTab().setText("주문현황").setIcon(R.drawable.outline_assignment_black_48);
         thirdTab = tabs.newTab().setText("미수금").setIcon(R.drawable.outline_payments_black_48);
         fourthTab = tabs.newTab().setText("가용재고").setIcon(R.drawable.outline_inventory_black_48);
-        fifthTab=tabs.newTab().setText("미납현황").setIcon(R.drawable.outline_inventory_2_black_48);
+        fifthTab = tabs.newTab().setText("미납현황").setIcon(R.drawable.outline_inventory_2_black_48);
+        sixthTab = tabs.newTab().setText("출고현황").setIcon(R.drawable.local_shipping_24px);
         tabs.addTab(firstTab);
         tabs.addTab(secondTab);
         tabs.addTab(thirdTab);
         tabs.addTab(fourthTab);
         tabs.addTab(fifthTab);
+        tabs.addTab(sixthTab);
 /*
         tabs2=findViewById(R.id.tabs2);
         final TabLayout.Tab topTab;
@@ -239,8 +239,9 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
         thirdTab.view.setVisibility(View.GONE);
         fourthTab.view.setVisibility(View.GONE);
         fifthTab.view.setVisibility(View.GONE);
+        sixthTab.view.setVisibility(View.GONE);
 
-        if (Users.authorityList.contains(2)) {//대리점 권한이 있으면, Third, Fourth탭 안보이게
+        /*if (Users.authorityList.contains(2)) {//대리점 권한이 있으면, Third, Fourth탭 안보이게
             layoutRefresh.setVisibility(View.VISIBLE);
             layoutTotal.setVisibility(View.VISIBLE);
             params.weight = (float)7.1;
@@ -252,21 +253,34 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
             firstTab.view.setVisibility(View.VISIBLE);
             secondTab.view.setVisibility(View.VISIBLE);
             getSupportFragmentManager().beginTransaction().add(R.id.container, fragmentViewSaleOrder).commit();//첫실행 fragment
-        } else if (Users.authorityList.contains(0) || Users.authorityList.contains(1)) {
-            firstTab.setIcon(R.drawable.baseline_local_grocery_store_black_48);//주문관리
-            secondTab.setIcon(R.drawable.outline_assignment_black_48);//주문현황
-            thirdTab.setIcon(R.drawable.outline_payments_black_48);//미수금
-            fourthTab.setIcon(R.drawable.outline_inventory_black_48);//수불현황
-            fifthTab.setIcon(R.drawable.outline_inventory_2_black_48);//
-            tabs.selectTab(firstTab);
-            currentTab=0;
-            firstTab.view.setVisibility(View.VISIBLE);
-            secondTab.view.setVisibility(View.VISIBLE);
-            thirdTab.view.setVisibility(View.VISIBLE);
-            fourthTab.view.setVisibility(View.VISIBLE);
-            fifthTab.view.setVisibility(View.VISIBLE);
-            getSupportFragmentManager().beginTransaction().add(R.id.container, fragmentSaleOrder).commit();//첫실행 fragment
+        } */
+        currentTab = 0;
+        firstTab.view.setVisibility(View.VISIBLE);
+        secondTab.view.setVisibility(View.VISIBLE);
+        thirdTab.view.setVisibility(View.VISIBLE);
+        fourthTab.view.setVisibility(View.VISIBLE);
+        fifthTab.view.setVisibility(View.VISIBLE);
+        sixthTab.view.setVisibility(View.VISIBLE);
+        if (Users.authorityList.contains(2)) {
+            tabs.selectTab(secondTab);
+            currentTab = 1;
+            secondTab.setIcon(R.drawable.baseline_assignment_black_48);
+            layoutRefresh.setVisibility(View.VISIBLE);
+            layoutTotal.setVisibility(View.VISIBLE);
+            //txtTotalWeight.setVisibility(View.VISIBLE);
+            //txtLabelWeight.setVisibility(View.VISIBLE);
+            layoutWeight.setVisibility(View.VISIBLE);
+            layoutTotal.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+            params.weight = (float)7.1;
+            container.setLayoutParams(params);
+            getSupportFragmentManager().beginTransaction().replace(R.id.container, fragmentViewSaleOrder).commit();
         }
+        else {
+            tabs.selectTab(firstTab);
+            getSupportFragmentManager().beginTransaction().add(R.id.container, fragmentSaleOrder).commit();//첫실행 fragment
+            firstTab.setIcon(R.drawable.baseline_local_grocery_store_black_48);//주문관리
+        }
+
         /*tabs.addTab(tabs.newTab().setText("출하"));*/
 
        /* tabs.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -277,7 +291,6 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 int position = tab.getPosition();
-                currentTab=position;
                 Fragment selected = null;
                 if (position == 0) {
                     if (Users.authorityList.contains(2)) {
@@ -286,6 +299,17 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                             Toast.makeText(MainActivity2.this, "연결된 거래처 정보가 존재하지 않습니다.", Toast.LENGTH_SHORT).show();
                             return;
                         }
+                        /*secondTab.setIcon(R.drawable.baseline_assignment_black_48);
+                        layoutRefresh.setVisibility(View.VISIBLE);
+                        layoutTotal.setVisibility(View.VISIBLE);
+                        //txtTotalWeight.setVisibility(View.VISIBLE);
+                        //txtLabelWeight.setVisibility(View.VISIBLE);
+                        layoutWeight.setVisibility(View.VISIBLE);
+                        layoutTotal.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                        params.weight = (float)7.1;
+                        container.setLayoutParams(params);*/
+                        fragmentViewSaleOrder.progressFlag = false;
+                        selected = fragmentViewSaleOrder;
                         secondTab.setIcon(R.drawable.baseline_assignment_black_48);
                         layoutRefresh.setVisibility(View.VISIBLE);
                         layoutTotal.setVisibility(View.VISIBLE);
@@ -295,8 +319,9 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                         layoutTotal.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                         params.weight = (float)7.1;
                         container.setLayoutParams(params);
-                        secondTab.select();
+                        getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
                         getLocationNoByCustomerCode();
+                        currentTab=1;
                     } else {
                         selected = fragmentSaleOrder;
                         firstTab.setIcon(R.drawable.baseline_local_grocery_store_black_48);
@@ -305,8 +330,10 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                         params.weight = (float)7.9;
                         container.setLayoutParams(params);
                         getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                        currentTab=position;
                     }
                 } else if (position == 1) {//주문현황
+                    fragmentViewSaleOrder.progressFlag = true;
                     selected = fragmentViewSaleOrder;
                     secondTab.setIcon(R.drawable.baseline_assignment_black_48);
                     layoutRefresh.setVisibility(View.VISIBLE);
@@ -317,12 +344,8 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                     layoutTotal.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                     params.weight = (float)7.1;
                     container.setLayoutParams(params);
-                    if (Users.authorityList.contains(2)) {
-                        //대리점 권한이 있으면, 본인 업체만 조회
-                        getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
-                    } else {
-                        getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
-                    }
+                    getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                    currentTab=position;
                 } else if (position == 2) {
                     selected = fragmentViewCollection;
                     thirdTab.setIcon(R.drawable.baseline_payments_black_48);
@@ -334,8 +357,8 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                     layoutTotal.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
                     params.weight = (float)7.1;
                     container.setLayoutParams(params);
-                    //대리점 권한이 있으면, 주문관리 누르면 바로 연결된 업체,현장 주문서 작성
                     getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                    currentTab=position;
                 }
 
                 else if (position == 3) {
@@ -346,6 +369,21 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                 else if (position == 4) {
                     Intent intent = new Intent(MainActivity2.this, MinapActivity.class);
                     startActivity(intent);
+                }
+
+                else if (position == 5) {//출고현황
+                    selected = fragmentStockOut;
+                    //sixthTab.setIcon(R.drawable.local_shipping_24px);
+                    layoutRefresh.setVisibility(View.VISIBLE);
+                    layoutTotal.setVisibility(View.VISIBLE);
+                    //txtTotalWeight.setVisibility(View.VISIBLE);
+                    //txtLabelWeight.setVisibility(View.VISIBLE);
+                    layoutWeight.setVisibility(View.VISIBLE);
+                    layoutTotal.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                    params.weight = (float)7.1;
+                    container.setLayoutParams(params);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.container, selected).commit();
+                    currentTab=position;
                 }
             }
 
@@ -365,13 +403,14 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
             public void onTabReselected(TabLayout.Tab tab) {
 
                 int position = tab.getPosition();
-                currentTab=position;
                 Fragment selected = null;
                 if (position == 0) {
                     return;
                 } else if (position == 1) {
+                    currentTab=position;
                     return;
                 } else if (position == 2) {
+                    currentTab=position;
                     return;
                 }
 
@@ -382,6 +421,10 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                 else if (position == 4) {
                     Intent intent = new Intent(MainActivity2.this, MinapActivity.class);
                     startActivity(intent);
+                }
+                else if(position==5){
+                    currentTab=position;
+                    return;
                 }
             }
         });
@@ -567,8 +610,16 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
             new ActivityResultCallback<ActivityResult>() {
                 @Override
                 public void onActivityResult(ActivityResult result) {
-                    String fromDate = fragmentViewSaleOrder.tyear + "-" + (fragmentViewSaleOrder.tmonth + 1) + "-" + fragmentViewSaleOrder.tdate;
-                    fragmentViewSaleOrder.getViewSaleOrderData(fromDate);
+
+                    if(currentTab==1){
+                        fragmentViewSaleOrder.progressFlag = true;
+                        String fromDate = fragmentViewSaleOrder.tyear + "-" + (fragmentViewSaleOrder.tmonth + 1) + "-" + fragmentViewSaleOrder.tdate;
+                        fragmentViewSaleOrder.getViewSaleOrderData(fromDate);
+                    }
+                    if(currentTab==5){
+                        String fromDate = fragmentStockOut.tyear + "-" + (fragmentStockOut.tmonth + 1) + "-" + fragmentStockOut.tdate;
+                        fragmentStockOut.getStockOutData(fromDate);
+                    }
                 }
             });
 

@@ -2,7 +2,6 @@ package com.symbol.steelsales.Activity;
 
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -15,11 +14,8 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.symbol.steelsales.Adapter.MinapAdapter;
-import com.symbol.steelsales.Adapter.ProductInOutAdapter;
 import com.symbol.steelsales.Object.Minap;
-import com.symbol.steelsales.Object.Stock;
 import com.symbol.steelsales.Object.Users;
 import com.symbol.steelsales.R;
 import com.symbol.steelsales.RequestHttpURLConnection;
@@ -31,7 +27,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-//가용재고가 표기되는 품목선택 액티비티
 public class MinapActivity extends BaseActivity {
 
     ArrayList<String> partNameDic;//품명 검색을 위한 리스트
@@ -60,7 +55,6 @@ public class MinapActivity extends BaseActivity {
     public int tdate;
 
 
-
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_minap);
@@ -69,13 +63,13 @@ public class MinapActivity extends BaseActivity {
         //txtContent = findViewById(R.id.txtContent);
         spinnerDept = findViewById(R.id.spinnerDept);
         //txtContent.setText("미납현황");
-        txtFromDate=findViewById(R.id.txtFromDate);
-        txtToDate=findViewById(R.id.txtToDate);
-        txtTotalQty=findViewById(R.id.txtTotalQty);
-        txtTotalWeight=findViewById(R.id.txtTotalWeight);
+        txtFromDate = findViewById(R.id.txtFromDate);
+        txtToDate = findViewById(R.id.txtToDate);
+        txtTotalQty = findViewById(R.id.txtTotalQty);
+        txtTotalWeight = findViewById(R.id.txtTotalWeight);
 
         final Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.DATE,-1);
+        calendar.add(Calendar.DATE, -1);
         final Calendar calendar2 = Calendar.getInstance();
         fyear = calendar.get(Calendar.YEAR);
         fmonth = calendar.get(Calendar.MONTH);
@@ -118,19 +112,22 @@ public class MinapActivity extends BaseActivity {
         //spinnerLocation.setMinimumWidth(150);
         //spinnerLocation.setDropDownWidth(150);
         spinnerDept.setSelection(index);
+        if (Users.authorityList.contains(2)){
+            this.spinnerDept.setEnabled(false);
+        }
         spinnerDept.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (view == null){
-                    if(position==0){
-                        String fromDate=fyear+"-"+(fmonth+1)+"-"+fdate;
-                        String toDate = tyear+"-"+(tmonth+1)+"-"+tdate;
+                if (view == null) {
+                    if (position == 0) {
+                        String fromDate = fyear + "-" + (fmonth + 1) + "-" + fdate;
+                        String toDate = tyear + "-" + (tmonth + 1) + "-" + tdate;
                         getMinapData(fromDate, toDate);
                     }
                     return;
                 }
-                String fromDate=fyear+"-"+(fmonth+1)+"-"+fdate;
-                String toDate = tyear+"-"+(tmonth+1)+"-"+tdate;
+                String fromDate = fyear + "-" + (fmonth + 1) + "-" + fdate;
+                String toDate = tyear + "-" + (tmonth + 1) + "-" + tdate;
                 getMinapData(fromDate, toDate);
             }
 
@@ -194,11 +191,11 @@ public class MinapActivity extends BaseActivity {
                             public void onDateSet(DatePicker view,
                                                   int year, int monthOfYear, int dayOfMonth) {
                                 txtFromDate.setText(year + "." + (monthOfYear + 1) + "." + dayOfMonth);
-                                fyear=year;
-                                fmonth=monthOfYear;
-                                fdate=dayOfMonth;
-                                String fromDate=fyear+"-"+(fmonth+1)+"-"+fdate;
-                                String toDate = tyear+"-"+(tmonth+1)+"-"+tdate;
+                                fyear = year;
+                                fmonth = monthOfYear;
+                                fdate = dayOfMonth;
+                                String fromDate = fyear + "-" + (fmonth + 1) + "-" + fdate;
+                                String toDate = tyear + "-" + (tmonth + 1) + "-" + tdate;
                                 //DATA가져오기
                                 getMinapData(fromDate, toDate);
 
@@ -217,11 +214,11 @@ public class MinapActivity extends BaseActivity {
                             public void onDateSet(DatePicker view,
                                                   int year, int monthOfYear, int dayOfMonth) {
                                 txtToDate.setText(year + "." + (monthOfYear + 1) + "." + dayOfMonth);
-                                tyear=year;
-                                tmonth=monthOfYear;
-                                tdate=dayOfMonth;
-                                String fromDate=fyear+"-"+(fmonth+1)+"-"+fdate;
-                                String toDate = tyear+"-"+(tmonth+1)+"-"+tdate;
+                                tyear = year;
+                                tmonth = monthOfYear;
+                                tdate = dayOfMonth;
+                                String fromDate = fyear + "-" + (fmonth + 1) + "-" + fdate;
+                                String toDate = tyear + "-" + (tmonth + 1) + "-" + tdate;
                                 //DATA가져오기
                                 getMinapData(fromDate, toDate);
 
@@ -235,17 +232,21 @@ public class MinapActivity extends BaseActivity {
 
     public void getMinapData(String fromDate, String toDate) {
         String url = getString(R.string.service_address) + "getMinapData";
+        if (Users.authorityList.contains(2)){
+            url = getString(R.string.service_address) + "getMinapData2";
+        }
         ContentValues values = new ContentValues();
 
         values.put("FromDate", fromDate);
         values.put("ToDate", toDate);
+        values.put("CustomerCode", Users.CustomerCode);
 
-        int position=spinnerDept.getSelectedItemPosition();
-        String deptCode="-1";
+        int position = spinnerDept.getSelectedItemPosition();
+        String deptCode = "-1";
 
-        for(int i=0;i<Users.deptArrayList.size();i++){
-            if(Users.deptArrayList.get(i).index==position)
-                deptCode=Users.deptArrayList.get(i).deptCode;
+        for (int i = 0; i < Users.deptArrayList.size(); i++) {
+            if (Users.deptArrayList.get(i).index == position)
+                deptCode = Users.deptArrayList.get(i).deptCode;
         }
         values.put("DeptCode", deptCode);
         GetMinapData gsod = new GetMinapData(url, values);
@@ -290,8 +291,8 @@ public class MinapActivity extends BaseActivity {
                 Minap minap;
                 JSONArray jsonArray = new JSONArray(result);
                 String ErrorCheck = "";
-                String totalQty="0";
-                String totalWeight="0";
+                String totalQty = "0";
+                String totalWeight = "0";
                 minapList = new ArrayList<>();
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject child = jsonArray.getJSONObject(i);
@@ -314,11 +315,10 @@ public class MinapActivity extends BaseActivity {
                     minap.NotDeliveryQty = child.getString("NotDeliveryQty");
                     minap.NotDeliveryWeight = child.getString("NotDeliveryWeight");
 
-                    if(minap.CustomerCode.equals("합계")){
-                        totalQty=minap.NotDeliveryQty;
-                        totalWeight=minap.NotDeliveryWeight;
-                    }
-                    else{
+                    if (minap.CustomerCode.equals("합계")) {
+                        totalQty = minap.NotDeliveryQty;
+                        totalWeight = minap.NotDeliveryWeight;
+                    } else {
                         minapList.add(minap);
                     }
 
