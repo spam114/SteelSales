@@ -6,6 +6,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -71,6 +72,7 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
     LinearLayout layoutWeight;
     FrameLayout container;
     TextView textView7;
+    TextView tvSite;
     int currentTab;
 
     String noticeData;
@@ -108,6 +110,7 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
         tabs = findViewById(R.id.tabs);
         imageView5 = findViewById(R.id.imageView5);
         textView7 = findViewById(R.id.textView7);//테스트용
+        tvSite = findViewById(R.id.tvSite);
         layoutRefresh = findViewById(R.id.layoutRefresh);
         layoutRefresh.setVisibility(View.INVISIBLE);
         layoutTotal=findViewById(R.id.layoutTotal);
@@ -157,7 +160,10 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
         imageView5.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(MainActivity2.this);
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://kosa.or.kr/"));
+                startActivityResult.launch(intent);
+
+                /*MaterialAlertDialogBuilder alertBuilder = new MaterialAlertDialogBuilder(MainActivity2.this);
                 //alertBuilder.setIcon(R.drawable.ic_launcher);
                 //alertBuilder.setTitle(partName + "(" + partSpecName + ")");
                 // List Adapter 생성
@@ -197,7 +203,23 @@ public class MainActivity2 extends FragmentActivity implements BaseActivityInter
                                                 int id) {
                             }
                         });
-                alertBuilder.show();
+                alertBuilder.show();*/
+            }
+        });
+
+        textView7.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://kosa.or.kr/"));
+                startActivityResult.launch(intent);
+            }
+        });
+
+        tvSite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://kosa.or.kr/"));
+                startActivityResult.launch(intent);
             }
         });
 
