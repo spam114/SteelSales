@@ -33,6 +33,7 @@ import com.symbol.steelsales.Interface.BaseActivityInterface;
 import com.symbol.steelsales.MyWatcher;
 import com.symbol.steelsales.MyWatcher2;
 import com.symbol.steelsales.MyWatcher3;
+import com.symbol.steelsales.MyWatcher4;
 import com.symbol.steelsales.Object.SaleOrder;
 import com.symbol.steelsales.R;
 import com.symbol.steelsales.RequestHttpURLConnection;
@@ -56,6 +57,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
     TextView txtTotalWeight;
     BackPressEditText edtOrderQty;
     BackPressEditText edtDiscountRate;
+    BackPressEditText edtBundle;
     TextView txtOrderPrice;
     TextView txtOrderAmount;
     LinearLayout layoutTop;
@@ -106,9 +108,15 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             txtOrderAmount = row.findViewById(R.id.txtOrderAmount);
             edtOrderQty = (BackPressEditText) row.findViewById(R.id.edtOrderQty);
             edtDiscountRate = (BackPressEditText) row.findViewById(R.id.edtDiscountRate);
-            edtOrderQty.addTextChangedListener(new MyWatcher(edtOrderQty, edtDiscountRate, txtOrderPrice, txtOrderAmount, this, txtTotal, data, row, txtWeight, txtTotalWeight));
+            edtBundle = (BackPressEditText)row.findViewById(R.id.edtBundle);
+            edtOrderQty.addTextChangedListener(new MyWatcher(edtOrderQty, edtDiscountRate, txtOrderPrice, txtOrderAmount, this, txtTotal, data,
+                    row, txtWeight, txtTotalWeight));
             //edtOrderQty.setRawInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-            edtDiscountRate.addTextChangedListener(new MyWatcher2(edtDiscountRate, edtOrderQty, txtOrderPrice, txtOrderAmount, this, txtTotal, data, row, txtWeight, txtTotalWeight));
+            edtDiscountRate.addTextChangedListener(new MyWatcher2(edtDiscountRate, edtOrderQty, txtOrderPrice, txtOrderAmount, this, txtTotal, data,
+                    row, txtWeight, txtTotalWeight));
+            edtBundle.addTextChangedListener(new MyWatcher4(edtBundle, edtOrderQty, edtDiscountRate, txtOrderPrice, txtOrderAmount, this, txtTotal, data,
+                    row, txtWeight, txtTotalWeight));
+
             txtOrderPrice.addTextChangedListener(new MyWatcher3(edtOrderQty, txtOrderPrice, txtOrderAmount, this, txtTotal, data, row, txtWeight));
             //edtDiscountRate.setRawInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         }
@@ -121,6 +129,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             //imvRemove= row.findViewById(R.id.imvRemove);
 
             TextView txtPartName = row.findViewById(R.id.txtPartName);
+            TextView txtPartSpecName = row.findViewById(R.id.txtPartSpecName);
             txtWeight = row.findViewById(R.id.txtWeight);
             txtStockQty = row.findViewById(R.id.txtStockQty);
             txtStockOutQty = row.findViewById(R.id.txtStockOutQty);
@@ -130,7 +139,8 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             String strOrderAmount = myFormatter.format(item.orderAmount);
             txtOrderAmount.setText(strOrderAmount);
 
-            txtPartName.setText(item.partName + "\n" + item.partSpecName);
+            txtPartName.setText(item.partName);
+            txtPartSpecName.setText(item.partSpecName);
             //txtWeight.setText(Double.toString(item.Weight));
             txtStockQty.setText("");//가용재고
 
@@ -143,12 +153,12 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             txtStockOutQty.setText(strStockOutQty);
 
             edtOrderQty = row.findViewById(R.id.edtOrderQty);
-            edtDiscountRate = row.findViewById(R.id.edtDiscountRate);
-
-            edtDiscountRate.setTag(item);
             edtOrderQty.setTag(item);
+            edtDiscountRate = row.findViewById(R.id.edtDiscountRate);
+            edtDiscountRate.setTag(item);
+            edtBundle = row.findViewById(R.id.edtBundle);
+            edtBundle.setTag(item);
             txtOrderPrice.setTag(item);
-
             //edtOrderQty.setRawInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
             //edtDiscountRate.setRawInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
 
@@ -162,6 +172,48 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             });
 
             edtOrderQty.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+
+                    if (actionId == EditorInfo.IME_ACTION_DONE) { // IME_ACTION_SEARCH , IME_ACTION_GO
+
+                        layoutTop.requestFocus();
+                        HideKeyBoard(context);
+                    }
+                    return false;
+                }
+            });
+
+
+            /*double doubBDQty = item.bdQty;
+            double doubOrderQty = 0;
+            if(item.orderQty.equals(""))
+                doubOrderQty = 0;
+            else
+                doubOrderQty=Double.parseDouble(item.orderQty);
+            int bd = 0;//번들수량
+
+            if(doubBDQty !=0){
+                bd = (int)(doubOrderQty/doubBDQty);//번들수량
+
+            }
+            if(bd ==0){
+                edtBundle.setText("");
+            }
+            else{
+                edtBundle.setText(Integer.toString(bd));
+            }*/
+
+
+
+            edtBundle.setOnBackPressListener(new BackPressEditText.OnBackPressListener() {
+                @Override
+                public void onBackPress() {
+                    layoutTop.requestFocus();
+                }
+            });
+
+            edtBundle.setOnEditorActionListener(new TextView.OnEditorActionListener() {
                 @Override
                 public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
 
@@ -204,9 +256,14 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             });
 
             if (item.discountRate.equals("") || item.discountRate.equals("0"))
-                edtDiscountRate.setText("-");
-            else
+                edtDiscountRate.setText("");
+            else{
+
+                //int disRate = (int)Double.parseDouble(item.discountRate);
+
                 edtDiscountRate.setText(item.discountRate);
+            }
+
 
 
             if (!item.orderPrice.equals("")) {
@@ -230,11 +287,13 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
             if (item.isEnabled) {
                 edtOrderQty.setEnabled(true);
                 edtDiscountRate.setEnabled(true);
+                edtBundle.setEnabled(true);
                 txtOrderPrice.setEnabled(true);
                 row.setEnabled(true);
             } else {
                 edtOrderQty.setEnabled(false);
                 edtDiscountRate.setEnabled(false);
+                edtBundle.setEnabled(false);
                 txtOrderPrice.setEnabled(false);
                 row.setEnabled(false);
             }
@@ -314,7 +373,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
                             String strOrderPrice = myFormatter.format((int) tempPrice);
                             txtOrderPrice.setText(strOrderPrice);
                             //notifyDataSetChanged();
-                            edtDiscountRate.setText("-");
+                            edtDiscountRate.setText("");
                             finalRow.setBackgroundColor(Color.parseColor("#FFF5F5DC"));
                             item.isChanged = true;
                             dialog.dismiss();
@@ -338,6 +397,7 @@ public class SaleOrderAdapter extends ArrayAdapter<SaleOrder> implements BaseAct
                 //edtOrderQty.clearFocus();
                 edtDiscountRate.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
                 //edtDiscountRate.clearFocus();
+                edtBundle.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
                 edtRemark.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                 //edtRemark.clearFocus();
                 edtRemark2.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);

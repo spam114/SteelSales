@@ -6,13 +6,18 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Filter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.symbol.steelsales.Adapter.ProductInOutAdapter;
+import com.symbol.steelsales.Object.Location;
 import com.symbol.steelsales.Object.Stock;
+import com.symbol.steelsales.Object.Users;
 import com.symbol.steelsales.R;
 import com.symbol.steelsales.RequestHttpURLConnection;
 
@@ -35,6 +40,11 @@ public class ProductInOutActivity extends BaseActivity {
     TextView txtContent;
     int selectedIndex = 0;
     TextView txtPartName;
+    Spinner spinnerLocation;
+    int locationNo = 18135;//초기
+
+    ArrayList<String> locationStringArrayList;
+    ArrayList<Location> locationArrayList;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +53,9 @@ public class ProductInOutActivity extends BaseActivity {
         listview = findViewById(R.id.listview);
         txtContent = findViewById(R.id.txtContent);
         txtContent.setText("가용재고");
+        spinnerLocation = findViewById(R.id.spinnerLocation);
+
+        getLocationData();
 
         /*listview.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
@@ -90,21 +103,122 @@ public class ProductInOutActivity extends BaseActivity {
                         .show();
             }
         });
-        getProductInOutData();
+        //getProductInOutData();
     }
 
-    public void getProductInOutData() {
-        String url = getString(R.string.service_address) + "GetProductInOutData";
+    public void getLocationData() {
+        String url = getString(R.string.service_address) + "getLocationData";
         ContentValues values = new ContentValues();
-        GetProductInOutData gsod = new GetProductInOutData(url, values);
+        values.put("BusinessClassCode", "2");
+        GetLocationData gsod = new GetLocationData(url, values);
         gsod.execute();
     }
 
-    public class GetProductInOutData extends AsyncTask<Void, Void, String> {
+    public void getAvailableStock(int locationNo) {
+        String url = getString(R.string.service_address) + "getAvailableStock";
+        ContentValues values = new ContentValues();
+        values.put("LocationNo", locationNo);
+        GetAvailableStock gsod = new GetAvailableStock(url, values);
+        gsod.execute();
+    }
+
+
+    public class GetLocationData extends AsyncTask<Void, Void, String> {
         String url;
         ContentValues values;
 
-        GetProductInOutData(String url, ContentValues values) {
+        GetLocationData(String url, ContentValues values) {
+            this.url = url;
+            this.values = values;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            startProgress();
+            //Log.i("순서확인", "미납/재고시작");
+            //progress bar를 보여주는 등등의 행위
+        }
+
+        @Override
+        protected String doInBackground(Void... params) {
+            String result;
+            RequestHttpURLConnection requestHttpURLConnection = new RequestHttpURLConnection();
+            result = requestHttpURLConnection.request(url, values);
+            return result; // 결과가 여기에 담깁니다. 아래 onPostExecute()의 파라미터로 전달됩니다.
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            // 통신이 완료되면 호출됩니다.
+            // 결과에 따른 UI 수정 등은 여기서 합니다
+            try {
+
+                Location location;
+                JSONArray jsonArray = new JSONArray(result);
+                String ErrorCheck = "";
+                locationStringArrayList = new ArrayList<>();
+                locationArrayList = new ArrayList<>();
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONObject child = jsonArray.getJSONObject(i);
+                    if (!child.getString("ErrorCheck").equals("null")) {//문제가 있을 시, 에러 메시지 호출 후 종료
+                        ErrorCheck = child.getString("ErrorCheck");
+                        //Toast.makeText(getBaseContext(), ErrorCheck, Toast.LENGTH_SHORT).show();
+                        showErrorDialog(ProductInOutActivity.this, ErrorCheck, 2);
+                        return;
+                    }
+                    location = new Location();
+                    location.LocationNo = child.getString("LocationNo");
+                    location.LocationName = child.getString("LocationName");
+                    locationStringArrayList.add(location.LocationName);
+                    locationArrayList.add(location);
+                }
+
+                final ArrayAdapter adapter = new ArrayAdapter<String>(ProductInOutActivity.this,
+                        R.layout.spinner_item, locationStringArrayList);
+
+                spinnerLocation.setAdapter(adapter);
+                spinnerLocation.setSelection(0);
+
+                spinnerLocation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+                        int locationNo = -1;
+                        locationNo = Integer.parseInt(locationArrayList.get(position).LocationNo) ;
+                        if (view == null) {
+                            if (position == 0) {
+                                getAvailableStock(locationNo);
+                            }
+                            return;
+                        }
+                        getAvailableStock(locationNo);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+
+                    }
+                });
+
+                //spinnerLocation.setMinimumWidth(150);
+                //spinnerLocation.setDropDownWidth(150);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+
+            } finally {
+                //Log.i("순서확인", "미납/재고종료");
+                progressOFF2(this.getClass().getName());
+            }
+        }
+    }
+
+    public class GetAvailableStock extends AsyncTask<Void, Void, String> {
+        String url;
+        ContentValues values;
+
+        GetAvailableStock(String url, ContentValues values) {
             this.url = url;
             this.values = values;
         }
@@ -153,12 +267,6 @@ public class ProductInOutActivity extends BaseActivity {
                     stock.PartSpec = child.getString("PartSpec");
                     stock.PartSpecName = child.getString("PartSpecName");
                     stock.Qty = child.getString("Qty");//가용재고
-                    stock.OutQty = child.getString("OutQty");
-                    stock.OutQtySeoul = child.getString("OutQtySeoul");
-                    stock.OutQtyPusan = child.getString("OutQtyPusan");
-                    stock.Minap = child.getString("Minap");
-                    stock.MinapSeoul = child.getString("MinapSeoul");
-                    stock.MinapPusan = child.getString("MinapPusan");
                     stockArrayList.add(stock);
 
                     if (!partNameDic.contains(stock.PartName))
@@ -172,7 +280,6 @@ public class ProductInOutActivity extends BaseActivity {
                 for (int i = 1; i < partNameDic.size() + 1; i++) {
                     partNameSequences[i] = partNameDic.get(i - 1);
                 }
-
 
                 productInOutAdapter = new ProductInOutAdapter
                         (ProductInOutActivity.this, R.layout.listview_product_in_out_row, stockArrayList);

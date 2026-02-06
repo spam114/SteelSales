@@ -21,6 +21,7 @@ public class Stock implements Serializable {
     public String Minap="";//미납수량
     public String MinapSeoul="";//미납수량(서울)
     public String MinapPusan="";//미납수량(부산)
+    public String BDQty="";
 
     public Stock() {
         super();

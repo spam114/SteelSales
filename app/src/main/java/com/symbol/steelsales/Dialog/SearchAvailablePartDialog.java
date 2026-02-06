@@ -200,6 +200,7 @@ public class SearchAvailablePartDialog extends DialogFragment implements BaseAct
                 saleOrder.marketPrice = stock.MarketPrice;
                 saleOrder.logicalWeight = Double.parseDouble(stock.Weight);
                 saleOrder.stockQty = Double.parseDouble(stock.Qty);
+                saleOrder.bdQty = Double.parseDouble(stock.BDQty);
                 saleOrder.stockOutQty = 0;
                 saleOrderArrayList.add(saleOrder);
             }
@@ -338,6 +339,7 @@ public class SearchAvailablePartDialog extends DialogFragment implements BaseAct
                     stock.Qty = child.getString("Qty");
                     stock.MarketPrice = child.getString("MarketPrice");
                     stock.Weight = child.getString("Weight");
+                    stock.BDQty = child.getString("BDQty");
                     stockArrayList.add(stock);
 
                     if (!partNameDic.contains(stock.PartName))

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.symbol.steelsales">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <!--명시해야할 권한 = 위험 권한 = 런타임 권한-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>

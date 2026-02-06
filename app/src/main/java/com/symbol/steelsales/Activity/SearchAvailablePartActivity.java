@@ -152,6 +152,7 @@ public class SearchAvailablePartActivity extends BaseActivity {
                         saleOrder.logicalWeight = Double.parseDouble(stock.Weight);
                         saleOrder.stockQty = Double.parseDouble(stock.Qty);
                         saleOrder.stockOutQty = 0;
+                        saleOrder.bdQty = Double.parseDouble(stock.BDQty);
                         saleOrderArrayList.add(saleOrder);
                     }
                 }
@@ -234,6 +235,7 @@ public class SearchAvailablePartActivity extends BaseActivity {
                     stock.Qty = child.getString("Qty");
                     stock.MarketPrice = child.getString("MarketPrice");
                     stock.Weight = child.getString("Weight");
+                    stock.BDQty = child.getString("BDQty");
                     stockArrayList.add(stock);
 
                     if (!partNameDic.contains(stock.PartName))

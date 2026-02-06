@@ -104,7 +104,7 @@ public class MyWatcher2 implements TextWatcher {
         }
 
         if (!s.toString().equals("") && !s.toString().equals("-")) {
-            discountRate = Double.parseDouble(s.toString());
+            discountRate = -Double.parseDouble(s.toString());
         }
 
         if(!item.initState)

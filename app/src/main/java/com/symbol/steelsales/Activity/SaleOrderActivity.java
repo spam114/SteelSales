@@ -571,6 +571,7 @@ public class SaleOrderActivity extends BaseActivity {
             saleOrder.logicalWeight = addedSaleOrderArrayList.get(i).logicalWeight;
             saleOrder.stockQty = addedSaleOrderArrayList.get(i).stockQty;
             saleOrder.stockOutQty = 0;
+            saleOrder.bdQty = addedSaleOrderArrayList.get(i).bdQty;
             saleOrderArrayList.add(saleOrder);
         }
         saleOrderAdapter.notifyDataSetChanged();
@@ -645,7 +646,6 @@ public class SaleOrderActivity extends BaseActivity {
     public void goBack() { // 종료
         //String fromDate=fragmentViewSaleOrder.tyear+"-"+(fragmentViewSaleOrder.tmonth+1)+"-"+fragmentViewSaleOrder.tdate;
         //fragmentViewSaleOrder.getViewSaleOrderData(fromDate);
-
         finish();
     }
 
@@ -706,12 +706,13 @@ public class SaleOrderActivity extends BaseActivity {
                     saleOrder.orderQty = child.getString("OrderQty");
                     saleOrder.orderPrice = child.getString("OrderPrice");
                     saleOrder.standardPrice = child.getString("StandardPrice");
-                    saleOrder.discountRate = child.getString("DiscountRate");
+                    saleOrder.discountRate = Double.toString(-Double.parseDouble(child.getString("DiscountRate")));
                     saleOrder.logicalWeight = Double.parseDouble(child.getString("LogicalWeight"));
                     saleOrder.orderAmount = Double.parseDouble(child.getString("OrderAmount"));
                     saleOrder.stockQty = Double.parseDouble(child.getString("StockQty"));
                     saleOrder.Weight = Double.parseDouble(saleOrder.orderQty) * saleOrder.logicalWeight;
                     saleOrder.stockOutQty = Double.parseDouble(child.getString("StockOutQty"));
+                    saleOrder.bdQty = Double.parseDouble(child.getString("BDQty"));
                     saleOrder.initState = true;
 
                     Remark1 = child.getString("Remark1");

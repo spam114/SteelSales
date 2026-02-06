@@ -30,6 +30,7 @@ public class SaleOrder implements Serializable {
     public double Weight=0;//중량
     public double stockQty;//가용재고
     public double stockOutQty;//출고수량
+    public double bdQty;//번들수량
 
     public SaleOrder() {
         super();
